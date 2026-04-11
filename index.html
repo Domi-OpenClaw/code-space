@@ -3,1031 +3,470 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>知识库浏览器 - Domi Code Space</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <title>Domi 知识库</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
     :root {
-      --primary: #3B82F6;
       --bg: #0f172a;
-      --bg-secondary: #1e293b;
-      --bg-card: #334155;
+      --bg-card: #1e293b;
+      --bg-card-hover: #273449;
+      --border: #334155;
       --text: #f1f5f9;
       --text-secondary: #94a3b8;
-      --border: #475569;
-      --hover: #3B82F6;
+      --primary: #3b82f6;
     }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    
-    /* Header */
-    .header {
-      background: var(--bg-secondary);
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-    
-    .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    
-    .logo {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .logo span {
-      color: var(--primary);
-    }
-    
-    .view-toggle {
-      display: flex;
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 4px;
-      gap: 4px;
-    }
-    
-    .view-toggle button {
-      padding: 8px 16px;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-    
-    .view-toggle button.active {
-      background: var(--primary);
-      color: white;
-    }
-    
-    .view-toggle button:hover:not(.active) {
-      background: var(--bg-card);
-    }
-    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+    /* Top bar */
+    .topbar { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .logo { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .logo span { color: var(--text); }
+    .search-box { flex: 1; max-width: 400px; }
+    .search-box input { width: 100%; padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-size: 14px; outline: none; }
+    .search-box input:focus { border-color: var(--primary); }
+    .view-toggle { display: flex; gap: 4px; }
+    .view-toggle button { padding: 6px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; color: var(--text-secondary); cursor: pointer; font-size: 13px; transition: all 0.2s; }
+    .view-toggle button.active { background: var(--primary); border-color: var(--primary); color: white; }
+
     /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    
-    .tab {
-      padding: 8px 16px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-secondary);
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
-    .tab:hover {
-      border-color: var(--primary);
-      color: var(--text);
-    }
-    
-    .tab.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: white;
-    }
-    
-    .tab .count {
-      background: rgba(255,255,255,0.2);
-      padding: 2px 6px;
-      border-radius: 10px;
-      font-size: 11px;
-    }
-    
-    .tab.active .count {
-      background: rgba(255,255,255,0.3);
-    }
-    
-    /* Search */
-    .search-box {
-      margin-top: 16px;
-      position: relative;
-    }
-    
-    .search-box input {
-      width: 100%;
-      padding: 12px 16px 12px 44px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      color: var(--text);
-      border-radius: 10px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    
-    .search-box input:focus {
-      border-color: var(--primary);
-    }
-    
-    .search-box input::placeholder {
-      color: var(--text-secondary);
-    }
-    
-    .search-box svg {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-secondary);
-    }
-    
-    /* Main Content */
-    .main {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-    
-    .content {
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-    }
-    
-    /* List View */
-    .list-view {
-      height: 100%;
-      overflow-y: auto;
-      padding: 20px;
-    }
-    
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
-    }
-    
-    .card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .card:hover {
-      border-color: var(--primary);
-      transform: translateY(-2px);
-    }
-    
-    .card.faded {
-      opacity: 0.3;
-    }
-    
-    .card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    
-    .card-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.4;
-      flex: 1;
-    }
-    
-    .card-category {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 12px;
-      color: white;
-      margin-left: 12px;
-      white-space: nowrap;
-    }
-    
-    .card-summary {
-      font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: 12px;
-    }
-    
-    .card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-    
-    .card-source {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    
-    .card-link {
-      color: var(--primary);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    
-    .card-link:hover {
-      text-decoration: underline;
-    }
-    
-    .highlight {
-      background: rgba(251, 191, 36, 0.3);
-      color: #FBBF24;
-      padding: 0 2px;
-      border-radius: 2px;
-    }
-    
-    /* Graph View */
-    .graph-view {
-      height: 100%;
-      position: relative;
-    }
-    
-    .graph-view svg {
-      width: 100%;
-      height: 100%;
-    }
-    
-    .node {
-      cursor: pointer;
-    }
-    
-    .node circle {
-      stroke: #fff;
-      stroke-width: 2px;
-      transition: all 0.2s;
-    }
-    
-    .node:hover circle {
-      stroke-width: 4px;
-    }
-    
-    .node.faded circle {
-      opacity: 0.15;
-    }
-    
-    .node.faded text {
-      opacity: 0.15;
-    }
-    
-    .node.highlighted circle {
-      stroke-width: 4px;
-      filter: drop-shadow(0 0 8px currentColor);
-    }
-    
-    .node text {
-      font-size: 11px;
-      fill: var(--text);
-      text-anchor: middle;
-      pointer-events: none;
-    }
-    
-    .link {
-      stroke: #475569;
-      stroke-opacity: 0.5;
-      stroke-width: 1.5px;
-    }
-    
-    .link.faded {
-      stroke-opacity: 0.1;
-    }
-    
-    .link.highlighted {
-      stroke: var(--primary);
-      stroke-opacity: 1;
-      stroke-width: 2.5px;
-    }
-    
-    .graph-legend {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-    }
-    
-    .legend-title {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-    }
-    
-    .legend-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-    }
-    
-    .legend-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-    
-    .graph-hint {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-    
-    /* Detail Panel */
-    .detail-panel {
-      width: 400px;
-      background: var(--bg-secondary);
-      border-left: 1px solid var(--border);
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-    
-    .detail-panel.open {
-      transform: translateX(0);
-    }
-    
-    .detail-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-    
-    .detail-title {
-      font-size: 16px;
-      font-weight: 600;
-      line-height: 1.4;
-      flex: 1;
-      padding-right: 16px;
-    }
-    
-    .detail-close {
-      width: 32px;
-      height: 32px;
-      border: none;
-      background: var(--bg-card);
-      color: var(--text);
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    
-    .detail-close:hover {
-      background: var(--primary);
-    }
-    
-    .detail-body {
-      padding: 20px;
-    }
-    
-    .detail-section {
-      margin-bottom: 24px;
-    }
-    
-    .detail-label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
-    .detail-value {
-      font-size: 14px;
-      color: var(--text);
-      line-height: 1.6;
-    }
-    
-    .detail-category {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      color: white;
-    }
-    
-    .detail-relations {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    
-    .relation-item {
-      padding: 10px 14px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .relation-item:hover {
-      border-color: var(--primary);
-      background: var(--bg-card);
-    }
-    
-    .relation-name {
-      font-size: 13px;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    
-    .relation-type {
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-    
-    .detail-url {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 16px;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-    
-    .detail-url:hover {
-      opacity: 0.9;
-    }
-    
-    /* Empty State */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-secondary);
-      padding: 40px;
-      text-align: center;
-    }
-    
-    .empty-state svg {
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-    
-    .empty-state h3 {
-      font-size: 16px;
-      margin-bottom: 8px;
-      color: var(--text);
-    }
-    
-    .empty-state p {
-      font-size: 14px;
-    }
-    
+    .tabs { display: flex; gap: 8px; padding: 12px 24px; border-bottom: 1px solid var(--border); overflow-x: auto; flex-shrink: 0; }
+    .tab { padding: 6px 14px; background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--text-secondary); cursor: pointer; font-size: 13px; white-space: nowrap; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+    .tab:hover { border-color: var(--primary); color: var(--text); }
+    .tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+    .tab .count { background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 10px; font-size: 11px; }
+    .tab.active .count { background: rgba(255,255,255,0.3); }
+
+    /* Main layout */
+    .main { display: flex; height: calc(100vh - 110px); }
+
+    /* Graph view */
+    #graph-view { flex: 1; position: relative; overflow: hidden; }
+    #graph-svg { width: 100%; height: 100%; display: block; cursor: grab; }
+    #graph-svg:active { cursor: grabbing; }
+
+    /* SVG elements */
+    .link { stroke: #475569; stroke-opacity: 0.6; stroke-width: 1.5px; }
+    .link.faded { stroke-opacity: 0.1; }
+    .link.highlighted { stroke: var(--primary); stroke-opacity: 1; stroke-width: 2.5px; }
+    .node circle { cursor: pointer; transition: filter 0.2s; }
+    .node:hover circle { filter: brightness(1.3); }
+    .node.faded circle { opacity: 0.15; }
+    .node.faded text { opacity: 0.15; }
+    .node text { font-size: 11px; fill: var(--text-secondary); pointer-events: none; text-anchor: middle; }
+    .highlight { background: #fbbf24; color: #000; padding: 0 2px; border-radius: 2px; }
+
+    /* Legend */
+    .legend { position: absolute; bottom: 20px; left: 20px; background: rgba(15,23,42,0.9); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 12px; }
+    .legend-title { color: var(--text-secondary); margin-bottom: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+    .legend-items { display: flex; flex-direction: column; gap: 6px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-item span { color: var(--text-secondary); }
+
+    /* List view */
+    #list-view { flex: 1; overflow-y: auto; padding: 16px 24px; display: none; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; }
+    .card:hover { background: var(--bg-card-hover); border-color: var(--primary); transform: translateY(-2px); }
+    .card.faded { opacity: 0.3; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; }
+    .card-category { font-size: 11px; padding: 2px 8px; border-radius: 10px; color: white; white-space: nowrap; }
+    .card-summary { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 8px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .card-source { font-size: 11px; color: var(--text-secondary); }
+
+    /* Detail panel */
+    .detail-panel { position: fixed; top: 0; right: -420px; width: 400px; height: 100vh; background: var(--bg-card); border-left: 1px solid var(--border); z-index: 100; transition: right 0.3s ease; overflow-y: auto; }
+    .detail-panel.open { right: 0; }
+    .detail-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 0; }
+    .detail-title { font-size: 16px; font-weight: 700; color: var(--text); flex: 1; padding-right: 12px; line-height: 1.4; }
+    .detail-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; border-radius: 6px; }
+    .detail-close:hover { background: var(--border); color: var(--text); }
+    .detail-body { padding: 16px 20px; }
+    .detail-section { margin-bottom: 18px; }
+    .detail-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .detail-category { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 10px; color: white; }
+    .detail-value { font-size: 13px; color: var(--text); line-height: 1.7; }
+    .detail-relations { display: flex; flex-direction: column; gap: 8px; }
+    .relation-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all 0.2s; }
+    .relation-item:hover { border-color: var(--primary); background: rgba(59,130,246,0.1); }
+    .relation-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .relation-type { font-size: 11px; color: var(--text-secondary); }
+    .detail-url { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-size: 13px; transition: background 0.2s; }
+    .detail-url:hover { background: #2563eb; }
+
+    /* Empty state */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; color: var(--text-secondary); gap: 12px; }
+    .empty-state svg { opacity: 0.3; }
+    .empty-state p { font-size: 14px; }
+
     /* Responsive */
     @media (max-width: 768px) {
-      .detail-panel {
-        position: fixed;
-        top: 0;
-        right: 0;
-        height: 100vh;
-        width: 100%;
-        max-width: 400px;
-        z-index: 100;
-      }
-      
-      .card-grid {
-        grid-template-columns: 1fr;
-      }
+      .detail-panel { width: 100%; right: -100%; }
+      .card-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="header-top">
-      <div class="logo">
-        <span>🔗</span> 知识库浏览器
-      </div>
-      <div class="view-toggle">
-        <button id="view-graph" class="active" onclick="switchView('graph')">
-          📊 图谱
-        </button>
-        <button id="view-list" onclick="switchView('list')">
-          📋 列表
-        </button>
-      </div>
-    </div>
-    
-    <!-- Tabs -->
-    <div class="tabs" id="tabs"></div>
-    
-    <!-- Search -->
-    <div class="search-box">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/>
-        <path d="M21 21l-4.35-4.35"/>
-      </svg>
-      <input type="text" id="search-input" placeholder="搜索知识点..." oninput="handleSearch()">
-    </div>
-  </header>
-  
-  <!-- Main -->
-  <main class="main">
-    <div class="content" id="content">
-      <!-- Graph View -->
-      <div class="graph-view" id="graph-view">
-        <svg id="graph-svg"></svg>
-        <div class="graph-legend" id="graph-legend"></div>
-        <div class="graph-hint">🔍 滚轮缩放 | 拖拽移动 | 点击节点查看详情</div>
-      </div>
-      
-      <!-- List View -->
-      <div class="list-view" id="list-view" style="display: none;">
-        <div class="card-grid" id="card-grid"></div>
-      </div>
-    </div>
-    
-    <!-- Detail Panel -->
-    <aside class="detail-panel" id="detail-panel">
-      <div class="detail-header">
-        <div class="detail-title" id="detail-title"></div>
-        <button class="detail-close" onclick="closeDetail()">✕</button>
-      </div>
-      <div class="detail-body" id="detail-body"></div>
-    </aside>
-  </main>
-  
-  <script src="data.js"></script>
-  <script>
-    // ========== State ==========
-    let currentTab = '全部';
-    let currentView = 'graph';
-    let searchQuery = '';
-    let simulation = null;
-    let selectedNode = null;
-    
-    // ========== Init ==========
-    function init() {
-      renderTabs();
-      renderLegend();
-      renderGraph();
-      renderList();
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo">Domi<span> 知识库</span></div>
+  <div class="search-box">
+    <input type="text" id="search-input" placeholder="🔍 搜索知识点..." oninput="handleSearch()">
+  </div>
+  <div class="view-toggle">
+    <button id="btn-graph" class="active" onclick="switchView('graph')">🕸️ 图谱</button>
+    <button id="btn-list" onclick="switchView('list')">📋 列表</button>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs" id="tabs-container"></div>
+
+<!-- Main content -->
+<div class="main">
+  <div id="graph-view">
+    <svg id="graph-svg"></svg>
+    <div class="legend" id="graph-legend"></div>
+  </div>
+  <div id="list-view">
+    <div class="card-grid" id="card-grid"></div>
+  </div>
+</div>
+
+<!-- Detail panel -->
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <div class="detail-title" id="detail-title"></div>
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="data.js"></script>
+<script>
+  // State
+  let currentTab = '全部';
+  let currentView = 'graph';
+  let searchQuery = '';
+  let simulation = null;
+
+  // Init
+  function init() {
+    renderTabs();
+    renderLegend();
+    renderGraph();
+  }
+
+  // ========== Tabs ==========
+  function renderTabs() {
+    const container = document.getElementById('tabs-container');
+    const cats = ['全部', ...Object.keys(CATEGORY_CONFIG)];
+    const counts = {};
+    cats.forEach(c => {
+      counts[c] = c === '全部' ? KNOWLEDGE_DATA.nodes.length : KNOWLEDGE_DATA.nodes.filter(n => n.category === c).length;
+    });
+    container.innerHTML = cats.map(c => {
+      const active = c === currentTab ? 'active' : '';
+      const emoji = c === '全部' ? '📚' : (CATEGORY_CONFIG[c]?.emoji || '📄');
+      return `<button class="tab ${active}" onclick="switchTab('${c}')">${emoji} ${c} <span class="count">${counts[c]}</span></button>`;
+    }).join('');
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    renderTabs();
+    if (currentView === 'graph') renderGraph();
+    else renderList();
+  }
+
+  // ========== View toggle ==========
+  function switchView(view) {
+    currentView = view;
+    document.getElementById('btn-graph').classList.toggle('active', view === 'graph');
+    document.getElementById('btn-list').classList.toggle('active', view === 'list');
+    document.getElementById('graph-view').style.display = view === 'graph' ? 'block' : 'none';
+    document.getElementById('list-view').style.display = view === 'list' ? 'block' : 'none';
+    if (view === 'graph') { setTimeout(renderGraph, 50); }
+    else renderList();
+  }
+
+  // ========== Search ==========
+  function handleSearch() {
+    searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
+    if (currentView === 'graph') renderGraph();
+    else renderList();
+  }
+
+  function highlightText(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<span class="highlight">$1</span>');
+  }
+
+  // ========== Filter ==========
+  function getFilteredNodes() {
+    return KNOWLEDGE_DATA.nodes.filter(n => {
+      const matchTab = currentTab === '全部' || n.category === currentTab;
+      const matchSearch = !searchQuery ||
+        n.label.toLowerCase().includes(searchQuery) ||
+        n.summary.toLowerCase().includes(searchQuery);
+      return matchTab && matchSearch;
+    });
+  }
+
+  function getFilteredLinks(nodes) {
+    const ids = new Set(nodes.map(n => n.id));
+    return KNOWLEDGE_DATA.links.filter(l => {
+      const src = typeof l.source === 'object' ? l.source.id : l.source;
+      const tgt = typeof l.target === 'object' ? l.target.id : l.target;
+      return ids.has(src) && ids.has(tgt);
+    });
+  }
+
+  // ========== Graph ==========
+  function renderGraph() {
+    const container = document.getElementById('graph-view');
+    const svgEl = document.getElementById('graph-svg');
+    const svg = d3.select('#graph-svg');
+    svg.selectAll('*').remove();
+
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 600;
+    svg.attr('viewBox', `0 0 ${width} ${height}`);
+
+    const nodes = getFilteredNodes();
+    const links = getFilteredLinks(nodes);
+
+    if (nodes.length === 0) {
+      svg.append('text')
+        .attr('x', width / 2).attr('y', height / 2)
+        .attr('text-anchor', 'middle').attr('fill', '#94a3b8')
+        .attr('font-size', '14px').text('没有找到匹配的知识点');
+      return;
     }
-    
-    // ========== Tabs ==========
-    function renderTabs() {
-      const tabsContainer = document.getElementById('tabs');
-      const categories = ['全部', ...getCategories()];
-      
-      const countByCategory = {};
-      KNOWLEDGE_DATA.nodes.forEach(n => {
-        countByCategory[n.category] = (countByCategory[n.category] || 0) + 1;
-      });
-      
-      tabsContainer.innerHTML = categories.map(cat => {
-        const count = cat === '全部' ? KNOWLEDGE_DATA.nodes.length : (countByCategory[cat] || 0);
-        const config = CATEGORY_CONFIG[cat];
-        const color = config?.color || '#6B7280';
-        const emoji = config?.emoji || '📄';
-        const active = cat === currentTab ? 'active' : '';
-        
-        return `
-          <button class="tab ${active}" onclick="switchTab('${cat}')">
-            ${emoji} ${cat}
-            <span class="count">${count}</span>
-          </button>
-        `;
-      }).join('');
-    }
-    
-    function switchTab(tab) {
-      currentTab = tab;
-      renderTabs();
-      if (currentView === 'graph') {
-        renderGraph();
-      } else {
-        renderList();
-      }
-    }
-    
-    // ========== View Toggle ==========
-    function switchView(view) {
-      currentView = view;
-      
-      document.getElementById('view-graph').classList.toggle('active', view === 'graph');
-      document.getElementById('view-list').classList.toggle('active', view === 'list');
-      
-      document.getElementById('graph-view').style.display = view === 'graph' ? 'block' : 'none';
-      document.getElementById('list-view').style.display = view === 'list' ? 'block' : 'none';
-      
-      if (view === 'graph') {
-        setTimeout(renderGraph, 50);
-      }
-    }
-    
-    // ========== Search ==========
-    function handleSearch() {
-      searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
-      if (currentView === 'graph') {
-        renderGraph();
-      } else {
-        renderList();
-      }
-    }
-    
-    function highlightText(text, query) {
-      if (!query) return text;
-      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-      return text.replace(regex, '<span class="highlight">$1</span>');
-    }
-    
-    // ========== Filter Nodes ==========
-    function getFilteredNodes() {
-      return KNOWLEDGE_DATA.nodes.filter(node => {
-        const matchTab = currentTab === '全部' || node.category === currentTab;
-        const matchSearch = !searchQuery || 
-          node.label.toLowerCase().includes(searchQuery) ||
-          node.summary.toLowerCase().includes(searchQuery);
-        return matchTab && matchSearch;
-      });
-    }
-    
-    function getFilteredLinks(nodes) {
-      const nodeIds = new Set(nodes.map(n => n.id));
-      return KNOWLEDGE_DATA.links.filter(link => 
-        nodeIds.has(link.source) && nodeIds.has(link.target)
+
+    // Deep copy nodes and links for D3 mutation
+    const nodesCopy = nodes.map(n => ({ ...n }));
+    const linksCopy = links.map(l => ({ ...l }));
+
+    // Zoom
+    const zoom = d3.zoom().scaleExtent([0.1, 5])
+      .on('zoom', e => g.attr('transform', e.transform));
+    svg.call(zoom);
+    svg.on('dblclick.zoom', null);
+
+    const g = svg.append('g');
+
+    // Links
+    const link = g.append('g').attr('class', 'links')
+      .selectAll('line').data(linksCopy)
+      .join('line').attr('class', 'link');
+
+    // Nodes
+    const node = g.append('g').attr('class', 'nodes')
+      .selectAll('g').data(nodesCopy)
+      .join('g').attr('class', 'node')
+      .call(d3.drag()
+        .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+        .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+        .on('end', (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
       );
+
+    // Node circles
+    node.append('circle')
+      .attr('r', d => Math.min(8 + (d.connections || 0) * 3, 28))
+      .attr('fill', d => getCategoryColor(d.category))
+      .attr('stroke', '#0f172a').attr('stroke-width', 2)
+      .on('click', (e, d) => { e.stopPropagation(); showDetail(d); });
+
+    // Node labels
+    node.append('text')
+      .attr('dy', d => Math.min(8 + (d.connections || 0) * 3, 28) + 14)
+      .text(d => d.label.length > 14 ? d.label.slice(0, 14) + '…' : d.label);
+
+    // Force simulation
+    if (simulation) simulation.stop();
+    simulation = d3.forceSimulation(nodesCopy)
+      .force('link', d3.forceLink(linksCopy).id(d => d.id).distance(130))
+      .force('charge', d3.forceManyBody().strength(-450))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collision', d3.forceCollide().radius(d => Math.min(8 + (d.connections || 0) * 3, 28) + 15))
+      .on('tick', () => {
+        link
+          .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+          .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+        node.attr('transform', d => `translate(${d.x},${d.y})`);
+      });
+
+    // Background click to close
+    svg.on('click', () => closeDetail());
+
+    // Search fade
+    if (searchQuery) {
+      node.each(function(d) {
+        const match = d.label.toLowerCase().includes(searchQuery) || d.summary.toLowerCase().includes(searchQuery);
+        d3.select(this).classed('faded', !match);
+      });
+      link.classed('faded', d => {
+        const srcMatch = d.source.label?.toLowerCase().includes(searchQuery) || d.source.summary?.toLowerCase().includes(searchQuery);
+        const tgtMatch = d.target.label?.toLowerCase().includes(searchQuery) || d.target.summary?.toLowerCase().includes(searchQuery);
+        return !srcMatch && !tgtMatch;
+      });
     }
-    
-    // ========== Graph ==========
-    function renderGraph() {
-      const container = document.getElementById('graph-view');
-      const svg = d3.select('#graph-svg');
-      svg.selectAll('*').remove();
-      
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      
-      svg.attr('viewBox', [0, 0, width, height]);
-      
-      const nodes = getFilteredNodes();
-      const links = getFilteredLinks(nodes);
-      
-      if (nodes.length === 0) {
-        svg.append('text')
-          .attr('x', width / 2)
-          .attr('y', height / 2)
-          .attr('text-anchor', 'middle')
-          .attr('fill', '#94a3b8')
-          .text('暂无数据');
-        return;
-      }
-      
-      const g = svg.append('g');
-      
-      // Zoom
-      const zoom = d3.zoom()
-        .scaleExtent([0.2, 4])
-        .on('zoom', (event) => {
-          g.attr('transform', event.transform);
-        });
-      
-      svg.call(zoom);
-      svg.on('dblclick.zoom', null);
-      
-      // Links
-      const link = g.append('g')
-        .attr('class', 'links')
-        .selectAll('line')
-        .data(links)
-        .join('line')
-        .attr('class', d => {
-          if (!searchQuery) return 'link';
-          const src = KNOWLEDGE_DATA.nodes.find(n => n.id === d.source || n.label === d.source);
-          const tgt = KNOWLEDGE_DATA.nodes.find(n => n.id === d.target || n.label === d.target);
-          const matchSrc = !searchQuery || (src && (src.label.toLowerCase().includes(searchQuery) || src.summary.toLowerCase().includes(searchQuery)));
-          const matchTgt = !searchQuery || (tgt && (tgt.label.toLowerCase().includes(searchQuery) || tgt.summary.toLowerCase().includes(searchQuery)));
-          return `link ${searchQuery && !matchSrc && !matchTgt ? 'faded' : ''}`;
-        });
-      
-      // Node groups
-      const node = g.append('g')
-        .attr('class', 'nodes')
-        .selectAll('g')
-        .data(nodes)
-        .join('g')
-        .attr('class', 'node')
-        .call(d3.drag()
-          .on('start', dragstarted)
-          .on('drag', dragged)
-          .on('end', dragended));
-      
-      // Node circles
-      node.append('circle')
-        .attr('r', d => Math.min(8 + d.connections * 3, 30))
-        .attr('fill', d => getCategoryColor(d.category))
-        .attr('class', d => {
-          if (!searchQuery) return '';
-          const match = d.label.toLowerCase().includes(searchQuery) || d.summary.toLowerCase().includes(searchQuery);
-          return match ? '' : 'faded';
-        })
-        .on('click', (event, d) => {
-          event.stopPropagation();
-          showDetail(d);
-        });
-      
-      // Node labels
-      node.append('text')
-        .attr('dy', d => Math.min(8 + d.connections * 3, 30) + 16)
-        .text(d => d.label.length > 12 ? d.label.substring(0, 12) + '...' : d.label)
-        .attr('class', d => {
-          if (!searchQuery) return '';
-          const match = d.label.toLowerCase().includes(searchQuery) || d.summary.toLowerCase().includes(searchQuery);
-          return match ? '' : 'faded';
-        });
-      
-      // Center on selected node
-      if (selectedNode) {
-        const sel = nodes.find(n => n.id === selectedNode.id);
-        if (sel) {
-          const transform = d3.zoomTransform(svg.node());
-          svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(1.5));
-        }
-      }
-      
-      // Force simulation
-      if (simulation) simulation.stop();
-      
-      simulation = d3.forceSimulation(nodes)
-        .force('link', d3.forceLink(links).id(d => d.id).distance(120))
-        .force('charge', d3.forceManyBody().strength(-400))
-        .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(d => Math.min(8 + d.connections * 3, 30) + 10))
-        .on('tick', () => {
-          link
-            .attr('x1', d => d.source.x)
-            .attr('y1', d => d.source.y)
-            .attr('x2', d => d.target.x)
-            .attr('y2', d => d.target.y);
-          
-          node.attr('transform', d => `translate(${d.x},${d.y})`);
-        });
-      
-      // Click on background to close
-      svg.on('click', () => closeDetail());
-      
-      function dragstarted(event, d) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      }
-      
-      function dragged(event, d) {
-        d.fx = event.x;
-        d.fy = event.y;
-      }
-      
-      function dragended(event, d) {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-      }
+  }
+
+  // ========== List ==========
+  function renderList() {
+    const grid = document.getElementById('card-grid');
+    const nodes = getFilteredNodes();
+    if (nodes.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><p>没有找到匹配的知识点</p></div>';
+      return;
     }
-    
-    // ========== List ==========
-    function renderList() {
-      const grid = document.getElementById('card-grid');
-      const nodes = getFilteredNodes();
-      
-      if (nodes.length === 0) {
-        grid.innerHTML = `
-          <div class="empty-state" style="grid-column: 1 / -1;">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <h3>未找到匹配结果</h3>
-            <p>尝试其他关键词或分类</p>
+    grid.innerHTML = nodes.map(n => {
+      const color = getCategoryColor(n.category);
+      const emoji = getCategoryEmoji(n.category);
+      const hlLabel = highlightText(n.label, searchQuery);
+      const hlSummary = highlightText(n.summary, searchQuery);
+      return `
+        <div class="card" onclick="showDetailFromId('${n.id}')">
+          <div class="card-header">
+            <div class="card-title">${hlLabel}</div>
+            <span class="card-category" style="background:${color}">${emoji}</span>
           </div>
-        `;
-        return;
-      }
-      
-      grid.innerHTML = nodes.map(node => {
-        const color = getCategoryColor(node.category);
-        const emoji = getCategoryEmoji(node.category);
-        const highlightedLabel = highlightText(node.label, searchQuery);
-        const highlightedSummary = highlightText(node.summary, searchQuery);
-        
-        return `
-          <div class="card" onclick="showDetail(KNOWLEDGE_DATA.nodes.find(n => n.id === '${node.id}'))">
-            <div class="card-header">
-              <div class="card-title">${highlightedLabel}</div>
-              <span class="card-category" style="background: ${color}">${emoji} ${node.category}</span>
-            </div>
-            <div class="card-summary">${highlightedSummary}</div>
-            <div class="card-footer">
-              <span class="card-source">📁 ${node.source}</span>
-              <a href="${node.url}" target="_blank" class="card-link" onclick="event.stopPropagation()">
-                🔗 归档
-              </a>
-            </div>
+          <div class="card-summary">${hlSummary}</div>
+          <div class="card-footer">
+            <span class="card-source">${n.source}</span>
+            <span style="font-size:11px;color:var(--text-secondary)">${n.connections || 0} 个关联</span>
           </div>
-        `;
-      }).join('');
-    }
-    
-    // ========== Detail Panel ==========
-    function showDetail(node) {
-      selectedNode = node;
-      const panel = document.getElementById('detail-panel');
-      const color = getCategoryColor(node.category);
-      const emoji = getCategoryEmoji(node.category);
-      
-      // Highlight graph nodes
-      highlightGraphNodes(node.id);
-      
-      // Find related nodes
-      const relatedLinks = KNOWLEDGE_DATA.links.filter(l => 
-        (typeof l.source === 'object' ? l.source.id : l.source) === node.id ||
-        (typeof l.target === 'object' ? l.target.id : l.target) === node.id ||
-        (typeof l.source === 'object' ? l.source.label : l.source) === node.label ||
-        (typeof l.target === 'object' ? l.target.label : l.target) === node.label
-      );
-      
-      const relatedNodes = relatedLinks.map(l => {
-        const srcId = typeof l.source === 'object' ? l.source.id : l.source;
-        const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
-        const relatedId = srcId === node.id ? tgtId : srcId;
-        return {
-          node: KNOWLEDGE_DATA.nodes.find(n => n.id === relatedId),
-          relation: l.relation
-        };
-      }).filter(r => r.node);
-      
-      document.getElementById('detail-title').textContent = node.label;
-      document.getElementById('detail-body').innerHTML = `
-        <div class="detail-section">
-          <div class="detail-label">📂 分类</div>
-          <div><span class="detail-category" style="background: ${color}">${emoji} ${node.category}</span></div>
-        </div>
-        
-        <div class="detail-section">
-          <div class="detail-label">📝 摘要</div>
-          <div class="detail-value">${node.summary}</div>
-        </div>
-        
-        <div class="detail-section">
-          <div class="detail-label">📁 来源</div>
-          <div class="detail-value">${node.source}</div>
-        </div>
-        
-        <div class="detail-section">
-          <div class="detail-label">🔗 关联知识 (${relatedNodes.length})</div>
-          <div class="detail-relations">
-            ${relatedNodes.length > 0 ? relatedNodes.map(r => `
-              <div class="relation-item" onclick="jumpToNode('${r.node.id}')">
-                <div class="relation-name">${r.node.label}</div>
-                <div class="relation-type">${r.relation}</div>
-              </div>
-            `).join('') : '<div class="detail-value">暂无关联</div>'}
-          </div>
-        </div>
-        
-        <div class="detail-section">
-          <a href="${node.url}" target="_blank" class="detail-url">
-            🔗 查看归档原文
-          </a>
         </div>
       `;
-      
-      panel.classList.add('open');
-    }
-    
-    function closeDetail() {
-      document.getElementById('detail-panel').classList.remove('open');
-      selectedNode = null;
-      clearGraphHighlight();
-    }
-    
-    function jumpToNode(nodeId) {
-      const node = KNOWLEDGE_DATA.nodes.find(n => n.id === nodeId);
-      if (node) {
-        // Switch to this node's category tab
-        switchTab(node.category);
-        
-        // Switch to graph view
-        switchView('graph');
-        
-        // Show detail after render
-        setTimeout(() => showDetail(node), 300);
+    }).join('');
+  }
+
+  // ========== Detail panel ==========
+  function showDetail(node) {
+    const color = getCategoryColor(node.category);
+    const emoji = getCategoryEmoji(node.category);
+
+    // Find related
+    const related = [];
+    KNOWLEDGE_DATA.links.forEach(l => {
+      const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+      const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+      if (srcId === node.id) {
+        const n = KNOWLEDGE_DATA.nodes.find(x => x.id === tgtId);
+        if (n) related.push({ node: n, relation: l.relation });
       }
-    }
-    
-    // Highlight nodes in graph when detail panel is open
-    function highlightGraphNodes(nodeId) {
-      if (currentView !== 'graph') return;
-      const svg = d3.select('#graph-svg');
-      const relatedIds = new Set([nodeId]);
-      KNOWLEDGE_DATA.links.forEach(l => {
-        const srcId = typeof l.source === 'object' ? l.source.id : l.source;
-        const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
-        if (srcId === nodeId) relatedIds.add(tgtId);
-        if (tgtId === nodeId) relatedIds.add(srcId);
-      });
-      svg.selectAll('.node').classed('faded', d => !relatedIds.has(d.id));
-      svg.selectAll('.link').classed('faded', d => {
-        const srcId = typeof d.source === 'object' ? d.source.id : d.source;
-        const tgtId = typeof d.target === 'object' ? d.target.id : d.target;
-        return srcId !== nodeId && tgtId !== nodeId;
-      });
-    }
-    
-    function clearGraphHighlight() {
-      if (currentView !== 'graph') return;
-      const svg = d3.select('#graph-svg');
-      svg.selectAll('.node').classed('faded', false);
-      svg.selectAll('.link').classed('faded', false);
-    }
-    
-    // ========== Legend ==========
-    function renderLegend() {
-      const legend = document.getElementById('graph-legend');
-      legend.innerHTML = `
-        <div class="legend-title">图例说明</div>
-        <div class="legend-items">
-          ${Object.entries(CATEGORY_CONFIG).map(([cat, cfg]) => `
-            <div class="legend-item">
-              <div class="legend-dot" style="background: ${cfg.color}"></div>
-              <span>${cfg.emoji} ${cat}</span>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-    
-    // ========== Resize Handler ==========
-    window.addEventListener('resize', () => {
-      if (currentView === 'graph') {
-        renderGraph();
+      if (tgtId === node.id) {
+        const n = KNOWLEDGE_DATA.nodes.find(x => x.id === srcId);
+        if (n) related.push({ node: n, relation: l.relation });
       }
     });
-    
-    // ========== Start ==========
-    init();
-  </script>
+
+    document.getElementById('detail-title').textContent = node.label;
+    document.getElementById('detail-body').innerHTML = `
+      <div class="detail-section">
+        <div class="detail-label">分类</div>
+        <span class="detail-category" style="background:${color}">${emoji} ${node.category}</span>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label">摘要</div>
+        <div class="detail-value">${node.summary}</div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label">来源</div>
+        <div class="detail-value">${node.source}</div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label">关联知识 (${related.length})</div>
+        ${related.length > 0
+          ? `<div class="detail-relations">${related.map(r => `
+            <div class="relation-item" onclick="jumpToNode('${r.node.id}')">
+              <div class="relation-name">${r.node.label}</div>
+              <div class="relation-type">${r.relation}</div>
+            </div>`).join('')}</div>`
+          : '<div class="detail-value">暂无关联</div>'}
+      </div>
+      <div class="detail-section">
+        <a href="${node.url}" target="_blank" class="detail-url">🔗 查看归档原文</a>
+      </div>
+    `;
+    document.getElementById('detail-panel').classList.add('open');
+    highlightGraphNodes(node.id);
+  }
+
+  function showDetailFromId(id) {
+    const node = KNOWLEDGE_DATA.nodes.find(n => n.id === id);
+    if (node) showDetail(node);
+  }
+
+  function closeDetail() {
+    document.getElementById('detail-panel').classList.remove('open');
+    clearGraphHighlight();
+  }
+
+  function jumpToNode(nodeId) {
+    const node = KNOWLEDGE_DATA.nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    switchTab(node.category);
+    if (currentView !== 'graph') switchView('graph');
+    setTimeout(() => {
+      showDetail(node);
+    }, 300);
+  }
+
+  function highlightGraphNodes(nodeId) {
+    if (currentView !== 'graph') return;
+    const svg = d3.select('#graph-svg');
+    const relatedIds = new Set([nodeId]);
+    KNOWLEDGE_DATA.links.forEach(l => {
+      const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+      const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+      if (srcId === nodeId) relatedIds.add(tgtId);
+      if (tgtId === nodeId) relatedIds.add(srcId);
+    });
+    svg.selectAll('.node').classed('faded', d => !relatedIds.has(d.id));
+    svg.selectAll('.link').classed('faded', d => {
+      const srcId = typeof d.source === 'object' ? d.source.id : d.source;
+      const tgtId = typeof d.target === 'object' ? d.target.id : d.target;
+      return srcId !== nodeId && tgtId !== nodeId;
+    });
+  }
+
+  function clearGraphHighlight() {
+    if (currentView !== 'graph') return;
+    const svg = d3.select('#graph-svg');
+    svg.selectAll('.node').classed('faded', false);
+    svg.selectAll('.link').classed('faded', false);
+  }
+
+  // ========== Legend ==========
+  function renderLegend() {
+    const el = document.getElementById('graph-legend');
+    el.innerHTML = `
+      <div class="legend-title">图例</div>
+      <div class="legend-items">
+        ${Object.entries(CATEGORY_CONFIG).map(([cat, cfg]) => `
+          <div class="legend-item">
+            <div class="legend-dot" style="background:${cfg.color}"></div>
+            <span>${cfg.emoji} ${cat}</span>
+          </div>`).join('')}
+      </div>
+    `;
+  }
+
+  // ========== Resize ==========
+  window.addEventListener('resize', () => {
+    if (currentView === 'graph') renderGraph();
+  });
+
+  // ========== Start ==========
+  init();
+</script>
 </body>
 </html>

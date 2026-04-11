@@ -5,1114 +5,172 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Domi 知识库</title>
   <style>
-    :root {
-      --bg: #0f172a;
-      --bg-card: #1e293b;
-      --bg-card-hover: #273449;
-      --border: #334155;
-      --text: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --primary: #3b82f6;
-    }
+    :root { --bg: #0f172a; --bg-card: #1e293b; --border: #334155; --text: #f1f5f9; --text-secondary: #94a3b8; --primary: #3b82f6; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-
-    /* Top bar */
-    .topbar { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg); }
-    .logo { font-size: 18px; font-weight: 700; color: var(--primary); }
+    body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+    .topbar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .logo { font-size: 16px; font-weight: 700; color: var(--primary); white-space: nowrap; }
     .logo span { color: var(--text); }
-    .search-box { flex: 1; max-width: 400px; }
-    .search-box input { width: 100%; padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-size: 14px; outline: none; }
+    .search-box { flex: 1; }
+    .search-box input { width: 100%; max-width: 320px; padding: 7px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-size: 13px; outline: none; }
     .search-box input:focus { border-color: var(--primary); }
     .view-toggle { display: flex; gap: 4px; }
-    .view-toggle button { padding: 6px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; color: var(--text-secondary); cursor: pointer; font-size: 13px; transition: all 0.2s; }
+    .view-toggle button { padding: 5px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; color: var(--text-secondary); cursor: pointer; font-size: 12px; }
     .view-toggle button.active { background: var(--primary); border-color: var(--primary); color: white; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--border); overflow-x: auto; flex-shrink: 0; -webkit-overflow-scrolling: touch; }
-    .tab { padding: 6px 14px; background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--text-secondary); cursor: pointer; font-size: 13px; white-space: nowrap; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+    .tabs { display: flex; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--border); overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+    .tab { padding: 5px 12px; background: transparent; border: 1px solid var(--border); border-radius: 20px; color: var(--text-secondary); cursor: pointer; font-size: 12px; transition: all 0.2s; }
     .tab:hover { border-color: var(--primary); color: var(--text); }
     .tab.active { background: var(--primary); border-color: var(--primary); color: white; }
-    .tab .count { background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 10px; font-size: 11px; }
-    .tab.active .count { background: rgba(255,255,255,0.3); }
-
-    /* Main layout */
-    .main { display: flex; height: calc(100vh - 110px); }
-
-    /* Graph view */
+    .tab .count { font-size: 10px; opacity: 0.7; }
+    .main { display: flex; height: calc(100vh - 96px); overflow: hidden; }
     #graph-view { flex: 1; position: relative; overflow: hidden; }
     #graph-svg { width: 100%; height: 100%; display: block; cursor: grab; }
     #graph-svg:active { cursor: grabbing; }
-
-    /* SVG elements */
-    .link { stroke: #475569; stroke-opacity: 0.6; stroke-width: 1.5px; }
-    .link.faded { stroke-opacity: 0.1; }
-    .link.highlighted { stroke: var(--primary); stroke-opacity: 1; stroke-width: 2.5px; }
-    .node circle { cursor: pointer; transition: filter 0.2s; }
-    .node:hover circle { filter: brightness(1.3); }
-    .node.faded circle { opacity: 0.15; }
-    .node.faded text { opacity: 0.15; }
-    .node text { font-size: 11px; fill: var(--text-secondary); pointer-events: none; text-anchor: middle; }
+    .graph-link { stroke: #475569; stroke-opacity: 0.5; stroke-width: 1.5px; }
+    .graph-link.faded { stroke-opacity: 0.08; }
+    .graph-node circle { cursor: pointer; }
+    .graph-node text { font-size: 11px; fill: var(--text-secondary); pointer-events: none; text-anchor: middle; dominant-baseline: middle; }
+    .graph-node.faded circle { opacity: 0.12; }
+    .graph-node.faded text { opacity: 0.12; }
     .highlight { background: #fbbf24; color: #000; padding: 0 2px; border-radius: 2px; }
-
-    /* Legend */
-    .legend { position: absolute; bottom: 20px; left: 20px; background: rgba(15,23,42,0.9); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 12px; }
-    .legend-title { color: var(--text-secondary); margin-bottom: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-    .legend-items { display: flex; flex-direction: column; gap: 6px; }
-    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend { position: absolute; bottom: 16px; left: 16px; background: rgba(15,23,42,0.85); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 12px; backdrop-filter: blur(8px); }
+    .legend-title { color: var(--text-secondary); margin-bottom: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .legend-items { display: flex; flex-wrap: wrap; gap: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .legend-item span { color: var(--text-secondary); }
-
-    /* List view */
-    #list-view { flex: 1; overflow-y: auto; padding: 16px 24px; display: none; }
-    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
-    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; }
-    .card:hover { background: var(--bg-card-hover); border-color: var(--primary); transform: translateY(-2px); }
-    .card.faded { opacity: 0.3; }
-    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
-    .card-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; }
-    .card-category { font-size: 11px; padding: 2px 8px; border-radius: 10px; color: white; white-space: nowrap; }
-    .card-summary { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 8px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
-    .card-source { font-size: 11px; color: var(--text-secondary); }
-
-    /* Detail panel */
-    .detail-panel { position: fixed; top: 0; right: -420px; width: 400px; height: 100vh; background: var(--bg-card); border-left: 1px solid var(--border); z-index: 100; transition: right 0.3s ease; overflow-y: auto; }
-    .detail-panel.open { bottom: 0; }
-    .detail-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 0; }
-    .detail-title { font-size: 16px; font-weight: 700; color: var(--text); flex: 1; padding-right: 12px; line-height: 1.4; }
-    .detail-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 20px; padding: 4px; border-radius: 6px; }
+    .legend-item span { color: var(--text-secondary); font-size: 11px; }
+    #list-view { flex: 1; overflow-y: auto; padding: 12px 16px; display: none; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.2s; }
+    .card:hover { background: #273449; border-color: var(--primary); transform: translateY(-1px); }
+    .card.faded { opacity: 0.25; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .card-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; }
+    .card-category { font-size: 10px; padding: 2px 7px; border-radius: 10px; color: white; white-space: nowrap; flex-shrink: 0; }
+    .card-summary { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin: 6px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+    .card-source { font-size: 10px; color: var(--text-secondary); }
+    .detail-panel { position: fixed; top: 0; right: -380px; width: 370px; height: 100vh; background: var(--bg-card); border-left: 1px solid var(--border); z-index: 200; transition: right 0.3s ease; overflow-y: auto; display: flex; flex-direction: column; }
+    .detail-panel.open { right: 0; }
+    .detail-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-card); z-index: 1; }
+    .detail-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; padding-right: 10px; line-height: 1.4; }
+    .detail-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 6px; }
     .detail-close:hover { background: var(--border); color: var(--text); }
-    .detail-body { padding: 16px 20px; }
-    .detail-section { margin-bottom: 18px; }
-    .detail-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .detail-category { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 10px; color: white; }
-    .detail-value { font-size: 13px; color: var(--text); line-height: 1.7; }
-    .detail-relations { display: flex; flex-direction: column; gap: 8px; }
-    .relation-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: all 0.2s; }
-    .relation-item:hover { border-color: var(--primary); background: rgba(59,130,246,0.1); }
-    .relation-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
-    .relation-type { font-size: 11px; color: var(--text-secondary); }
-    .detail-url { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-size: 13px; transition: background 0.2s; }
+    .detail-body { padding: 14px; flex: 1; }
+    .detail-section { margin-bottom: 14px; }
+    .detail-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .detail-category { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; color: white; }
+    .detail-value { font-size: 12px; color: var(--text); line-height: 1.7; }
+    .detail-relations { display: flex; flex-direction: column; gap: 6px; }
+    .relation-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; cursor: pointer; transition: all 0.2s; }
+    .relation-item:hover { border-color: var(--primary); }
+    .relation-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .relation-type { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+    .detail-url { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-size: 12px; }
     .detail-url:hover { background: #2563eb; }
-
-    /* Empty state */
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; color: var(--text-secondary); gap: 12px; }
-    .empty-state svg { opacity: 0.3; }
-    .empty-state p { font-size: 14px; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .detail-panel { width: 100%; right: -100%; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; color: var(--text-secondary); gap: 10px; }
+    .empty-state p { font-size: 13px; }
+    @media (max-width: 600px) {
+      .detail-panel { width: 100%; right: auto; left: 0; top: auto; bottom: -100%; height: 80vh; border-left: none; border-top: 1px solid var(--border); border-radius: 16px 16px 0 0; }
+      .detail-panel.open { bottom: 0; right: auto; }
       .card-grid { grid-template-columns: 1fr; }
+      .main { height: calc(100vh - 88px); }
     }
   </style>
 </head>
 <body>
-
-<!-- Top bar -->
 <div class="topbar">
   <div class="logo">Domi<span> 知识库</span></div>
-  <div class="search-box">
-    <input type="text" id="search-input" placeholder="🔍 搜索知识点..." oninput="handleSearch()">
-  </div>
+  <div class="search-box"><input type="text" id="search-input" placeholder="搜索知识点..." oninput="onSearch()"></div>
   <div class="view-toggle">
-    <button id="btn-graph" class="active" onclick="switchView('graph')">🕸️ 图谱</button>
-    <button id="btn-list" onclick="switchView('list')">📋 列表</button>
+    <button id="btn-graph" class="active" onclick="setView('graph')">图谱</button>
+    <button id="btn-list" onclick="setView('list')">列表</button>
   </div>
 </div>
-
-<!-- Tabs -->
-<div class="tabs" id="tabs-container"></div>
-
-<!-- Main content -->
+<div class="tabs" id="tabs"></div>
 <div class="main">
-  <div id="graph-view">
-    <svg id="graph-svg"></svg>
-    <div class="legend" id="graph-legend"></div>
-  </div>
-  <div id="list-view">
-    <div class="card-grid" id="card-grid"></div>
-  </div>
+  <div id="graph-view"><svg id="graph-svg"></svg><div class="legend" id="legend"></div></div>
+  <div id="list-view"><div class="card-grid" id="cards"></div></div>
 </div>
-
-<!-- Detail panel -->
-<div class="detail-panel" id="detail-panel">
+<div class="detail-panel" id="detail">
   <div class="detail-header">
     <div class="detail-title" id="detail-title"></div>
     <button class="detail-close" onclick="closeDetail()">✕</button>
   </div>
   <div class="detail-body" id="detail-body"></div>
 </div>
-
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-const KNOWLEDGE_DATA = {
-  nodes: [
-    // ========== 朗新科技 ==========
-    {
-      id: "lx-1",
-      label: "朗新科技集团中文画册（2025版）",
-      category: "朗新科技",
-      summary: "总部位于无锡，拥有1.4万政企客户、5亿用户覆盖、31省区、15个国家业务布局",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#lx-1",
-      connections: 3
-    },
-    {
-      id: "lx-2",
-      label: "朗新AI研究院核心能力",
-      category: "朗新科技",
-      summary: "2023年成立，专注于时序预测、大模型、多模态、AIGC等核心能力，充电站收益增长15%",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#lx-2",
-      connections: 3
-    },
-    {
-      id: "lx-3",
-      label: "朗新核心业务场景",
-      category: "朗新科技",
-      summary: "涵盖聚合充电（新电途）、电力市场化交易、虚拟电厂、光伏云等核心业务场景",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#lx-3",
-      connections: 5
-    },
-    {
-      id: "lx-4",
-      label: "朗新科技发展历程",
-      category: "朗新科技",
-      summary: "1996北京创立→2006无锡→2013创业板上市→2017支付宝合作→2019双轨战略→2023 AI研究院",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#lx-4",
-      connections: 1
-    },
-    {
-      id: "lx-5",
-      label: "朗新虚拟电厂产品",
-      category: "朗新科技",
-      summary: "城市新型基础设施，支持负荷型/电源型/混合型，收益来源：电力市场+辅助服务+需求响应",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#lx-5",
-      connections: 2
-    },
+const D={"nodes":[{"id":"lx-1","label":"朗新科技集团中文画册（2025版）","category":"朗新科技","summary":"总部位于无锡，拥有1.4万政企客户、5亿用户覆盖、31省区、15个国家业务布局","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-1","connections":3},{"id":"lx-2","label":"朗新AI研究院核心能力","category":"朗新科技","summary":"2023年成立，专注于时序预测、大模型、多模态、AIGC等核心能力，充电站收益增长15%","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-2","connections":3},{"id":"lx-3","label":"朗新核心业务场景","category":"朗新科技","summary":"涵盖聚合充电（新电途）、电力市场化交易、虚拟电厂、光伏云等核心业务场景","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-3","connections":5},{"id":"lx-4","label":"朗新科技发展历程","category":"朗新科技","summary":"1996北京→2006无锡→2013创业板上市→2017支付宝合作→2019双轨战略→2023 AI研究院","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-4","connections":1},{"id":"lx-5","label":"朗新虚拟电厂产品","category":"朗新科技","summary":"城市新型基础设施，支持负荷型/电源型/混合型，收益：电力市场+辅助服务+需求响应","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-5","connections":2},{"id":"lx-6","label":"新电途聚合充电网络","category":"朗新科技","summary":"覆盖全国主要城市的聚合充电网络，连接多家运营商，提供统一支付和服务","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-6","connections":2},{"id":"lx-7","label":"电力市场化交易平台","category":"朗新科技","summary":"支持电力现货交易、中长期交易、辅助服务交易的全场景交易平台","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-7","connections":2},{"id":"lx-8","label":"光伏云平台","category":"朗新科技","summary":"分布式光伏电站监控、运维、发电预测的一体化云平台","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-8","connections":1},{"id":"td-1","label":"可信数据空间定义与定位","category":"可信数据空间","summary":"国家级数据流通基础设施，实现「供得出、流得动、用得好、保安全」四大目标","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-1","connections":2},{"id":"td-2","label":"可信数据空间核心技术体系","category":"可信数据空间","summary":"包含可信管控（区块链+智能合约）、隐私计算（TEE/MPC/联邦学习）、连接器、数据治理","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-2","connections":2},{"id":"td-3","label":"可信数据空间市场特征","category":"可信数据空间","summary":"单项目规模2000万+，政策密集出台，技术门槛高，目标2028年建设100个可信数据空间","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-3","connections":5},{"id":"td-4","label":"行业类可信数据空间招标项目","category":"可信数据空间","summary":"典型项目：国家管网1664万、山西2500万、湖南TEE+MPC技术路线","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-4","connections":1},{"id":"td-5","label":"城市级可信数据空间招标项目","category":"可信数据空间","summary":"典型项目：雄安3200万、德州2087万、呼和浩特3591万","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-5","connections":1},{"id":"td-6","label":"南网数据开放目录(149项)","category":"可信数据空间","summary":"发布于dm.csg.cn，涵盖治理/经济/绿色低碳/民生四大类，160+跨行业数据","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-6","connections":2},{"id":"td-7","label":"南网可信数据空间注册入驻","category":"可信数据空间","summary":"入驻平台data.csg.cn，需邀请码，3工作日内完成审核","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-7","connections":1},{"id":"td-8","label":"数据要素市场政策体系","category":"可信数据空间","summary":"国家数据局主导的「数据要素×」行动计划，构建数据流通顶层设计","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-8","connections":2},{"id":"cd-1","label":"充电桩选址大数据服务","category":"充电桩","summary":"基于城市经济、新能源车保有量、热力图、供需缺口分析，提供定容推荐服务","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#cd-1","connections":3},{"id":"cd-2","label":"充电AI智能选址产品","category":"充电桩","summary":"多维时空大数据+AI模型融合，秒出选址报告，智能推荐最优位置","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#cd-2","connections":3},{"id":"cd-3","label":"充电桩选址合作协议","category":"充电桩","summary":"2000次查询额度，合同期1年，违约金每日万分之五","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#cd-3","connections":1},{"id":"vp-1","label":"虚拟电厂产品解决方案","category":"虚拟电厂","summary":"源网荷储一体化，实现削峰填谷、辅助服务、电力市场化交易三大功能","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#vp-1","connections":3},{"id":"vp-2","label":"园区微电网能源运营","category":"虚拟电厂","summary":"聚合光伏、储能、充电桩，度电成本从0.85元降至0.57元","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#vp-2","connections":2},{"id":"vp-3","label":"负荷聚合商运营","category":"虚拟电厂","summary":"聚合工业负荷、商业负荷、居民负荷，参与电网调峰调频","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#vp-3","connections":2},{"id":"ndi-1","label":"NDI互联互通基本要求","category":"数据基础设施","summary":"数据登记→上架→目录上报→下发→发现→交互，6步标准化流程","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-1","connections":3},{"id":"ndi-2","label":"NDI用户身份管理规范","category":"数据基础设施","summary":"覆盖接入主体、连接器、平台身份注册认证全链路","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-2","connections":1},{"id":"ndi-3","label":"数据基础设施区域功能节点","category":"数据基础设施","summary":"具备身份管理、标识管理、目录管理等核心能力","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-3","connections":1},{"id":"ndi-4","label":"「数据要素×」三年行动计划","category":"数据基础设施","summary":"目标2026年建设300+示范场景，数据产业年均增速超20%","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-4","connections":2},{"id":"ndi-5","label":"数据登记与确权","category":"数据基础设施","summary":"数据资产登记、数据确权、数据质量评估全流程规范","source":"knowledge-index.md","url":"https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-5","connections":1}],"links":[{"source":"lx-2","target":"lx-3","relation":"研发支撑业务"},{"source":"lx-1","target":"lx-2","relation":"内容关联"},{"source":"lx-1","target":"lx-3","relation":"内容关联"},{"source":"lx-1","target":"lx-6","relation":"产品关联"},{"source":"lx-3","target":"lx-6","relation":"业务关联"},{"source":"lx-3","target":"lx-7","relation":"业务关联"},{"source":"lx-3","target":"lx-8","relation":"业务关联"},{"source":"lx-5","target":"vp-1","relation":"产品关联"},{"source":"lx-7","target":"td-3","relation":"市场关联"},{"source":"lx-3","target":"cd-2","relation":"业务关联"},{"source":"cd-2","target":"cd-1","relation":"产品关系"},{"source":"cd-1","target":"cd-3","relation":"商务关系"},{"source":"lx-3","target":"vp-1","relation":"业务关联"},{"source":"lx-3","target":"vp-2","relation":"业务关联"},{"source":"vp-1","target":"vp-2","relation":"方案关系"},{"source":"vp-1","target":"vp-3","relation":"业务关联"},{"source":"vp-2","target":"cd-1","relation":"场景关联"},{"source":"lx-5","target":"vp-2","relation":"产品关联"},{"source":"td-1","target":"td-2","relation":"包含关系"},{"source":"td-3","target":"td-4","relation":"市场机会"},{"source":"td-3","target":"td-5","relation":"市场机会"},{"source":"td-6","target":"td-3","relation":"数据支撑"},{"source":"td-6","target":"td-7","relation":"平台关联"},{"source":"td-3","target":"td-8","relation":"政策关联"},{"source":"ndi-1","target":"ndi-2","relation":"标准关联"},{"source":"ndi-1","target":"ndi-3","relation":"标准关联"},{"source":"ndi-1","target":"ndi-5","relation":"流程关联"},{"source":"ndi-4","target":"td-3","relation":"政策驱动"},{"source":"ndi-4","target":"td-8","relation":"政策驱动"},{"source":"td-2","target":"ndi-1","relation":"技术支撑"},{"source":"cd-2","target":"lx-2","relation":"AI能力支撑"},{"source":"vp-3","target":"lx-7","relation":"交易关联"},{"source":"lx-6","target":"vp-2","relation":"充电场景聚合"}]};
+const CC={"朗新科技":{"color":"#3B82F6","emoji":"🏢"},"可信数据空间":{"color":"#10B981","emoji":"🔐"},"充电桩":{"color":"#F97316","emoji":"⚡"},"虚拟电厂":{"color":"#EF4444","emoji":"⚡"},"数据基础设施":{"color":"#8B5CF6","emoji":"🏛️"}};
+let ct='全部',cv='graph',sq='',sim=null;
 
-    // ========== 可信数据空间 ==========
-    {
-      id: "td-1",
-      label: "可信数据空间定义与定位",
-      category: "可信数据空间",
-      summary: "国家级数据流通基础设施，实现「供得出、流得动、用得好、保安全」四大目标",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#td-1",
-      connections: 2
-    },
-    {
-      id: "td-2",
-      label: "可信数据空间核心技术体系",
-      category: "可信数据空间",
-      summary: "包含可信管控（区块链+智能合约）、隐私计算（TEE/MPC/联邦学习）、连接器、数据治理",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#td-2",
-      connections: 2
-    },
-    {
-      id: "td-3",
-      label: "可信数据空间市场特征",
-      category: "可信数据空间",
-      summary: "单项目规模2000万+，政策密集出台，技术门槛高，目标2028年建设100个可信数据空间",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#td-3",
-      connections: 5
-    },
-    {
-      id: "td-4",
-      label: "行业类可信数据空间招标项目",
-      category: "可信数据空间",
-      summary: "典型项目：国家管网1664万、山西2500万、湖南TEE+MPC技术路线",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#td-4",
-      connections: 1
-    },
-    {
-      id: "td-5",
-      label: "城市级可信数据空间招标项目",
-      category: "可信数据空间",
-      summary: "典型项目：雄安3200万、德州2087万、呼和浩特3591万",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#td-5",
-      connections: 1
-    },
-    {
-      id: "td-6",
-      label: "南网数据开放目录(149项)",
-      category: "可信数据空间",
-      summary: "发布于dm.csg.cn，涵盖治理、经济、绿色低碳、民生四大类，160+跨行业数据",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#td-6",
-      connections: 2
-    },
-    {
-      id: "td-7",
-      label: "南网可信数据空间注册入驻",
-      category: "可信数据空间",
-      summary: "入驻平台data.csg.cn，需邀请码，3工作日内完成审核",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#td-7",
-      connections: 1
-    },
-
-    // ========== 充电桩 ==========
-    {
-      id: "cd-1",
-      label: "充电桩选址大数据服务",
-      category: "充电桩",
-      summary: "基于城市经济、新能源车保有量、热力图、供需缺口分析，提供定容推荐服务",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#cd-1",
-      connections: 3
-    },
-    {
-      id: "cd-2",
-      label: "充电AI智能选址产品",
-      category: "充电桩",
-      summary: "多维时空大数据+AI模型融合，秒出选址报告，智能推荐最优位置",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#cd-2",
-      connections: 3
-    },
-    {
-      id: "cd-3",
-      label: "充电桩选址合作协议",
-      category: "充电桩",
-      summary: "2000次查询额度，合同期1年，违约金每日万分之五",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#cd-3",
-      connections: 1
-    },
-
-    // ========== 虚拟电厂 ==========
-    {
-      id: "vp-1",
-      label: "虚拟电厂产品解决方案",
-      category: "虚拟电厂",
-      summary: "源网荷储一体化，实现削峰填谷、辅助服务、电力市场化交易三大功能",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#vp-1",
-      connections: 3
-    },
-    {
-      id: "vp-2",
-      label: "园区微电网能源运营",
-      category: "虚拟电厂",
-      summary: "聚合光伏、储能、充电桩，度电成本从0.85元降至0.57元",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#vp-2",
-      connections: 2
-    },
-
-    // ========== 数据基础设施标准 ==========
-    {
-      id: "ndi-1",
-      label: "NDI互联互通基本要求",
-      category: "数据基础设施",
-      summary: "数据登记→上架→目录上报→下发→发现→交互，6步标准化流程",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#ndi-1",
-      connections: 3
-    },
-    {
-      id: "ndi-2",
-      label: "NDI用户身份管理规范",
-      category: "数据基础设施",
-      summary: "覆盖接入主体、连接器、平台身份注册认证全链路",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#ndi-2",
-      connections: 1
-    },
-    {
-      id: "ndi-3",
-      label: "数据基础设施区域功能节点",
-      category: "数据基础设施",
-      summary: "具备身份管理、标识管理、目录管理等核心能力",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#ndi-3",
-      connections: 1
-    },
-    {
-      id: "ndi-4",
-      label: "「数据要素×」三年行动计划",
-      category: "数据基础设施",
-      summary: "目标2026年建设300+示范场景，数据产业年均增速超20%",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#ndi-4",
-      connections: 2
-    },
-
-    // ========== 补充扩展节点（丰富图谱） ==========
-    {
-      id: "lx-6",
-      label: "新电途聚合充电网络",
-      category: "朗新科技",
-      summary: "覆盖全国主要城市的聚合充电网络，连接多家运营商，提供统一支付和服务",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#lx-6",
-      connections: 2
-    },
-    {
-      id: "lx-7",
-      label: "电力市场化交易平台",
-      category: "朗新科技",
-      summary: "支持电力现货交易、中长期交易、辅助服务交易的全场景交易平台",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#lx-7",
-      connections: 2
-    },
-    {
-      id: "lx-8",
-      label: "光伏云平台",
-      category: "朗新科技",
-      summary: "分布式光伏电站监控、运维、发电预测的一体化云平台",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#lx-8",
-      connections: 1
-    },
-    {
-      id: "td-8",
-      label: "数据要素市场政策体系",
-      category: "可信数据空间",
-      summary: "国家数据局主导的「数据要素×」行动计划，构建数据流通顶层设计",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#td-8",
-      connections: 2
-    },
-    {
-      id: "vp-3",
-      label: "负荷聚合商运营",
-      category: "虚拟电厂",
-      summary: "聚合工业负荷、商业负荷、居民负荷，参与电网调峰调频",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#vp-3",
-      connections: 2
-    },
-    {
-      id: "ndi-5",
-      label: "数据登记与确权",
-      category: "数据基础设施",
-      summary: "数据资产登记、数据确权、数据质量评估全流程规范",
-      source: "knowledge-index.md",
-      url: "https://github.com/Domi-OpenClaw/code-space/blob/main/docs/knowledge-index.md#ndi-5",
-      connections: 1
-    }
-  ],
-
-  links: [
-    // 朗新科技内部关联
-    { source: "lx-2", target: "lx-3", relation: "研发支撑业务" },
-    { source: "lx-1", target: "lx-2", relation: "内容关联" },
-    { source: "lx-1", target: "lx-3", relation: "内容关联" },
-    { source: "lx-1", target: "lx-6", relation: "产品关联" },
-    { source: "lx-3", target: "lx-6", relation: "业务关联" },
-    { source: "lx-3", target: "lx-7", relation: "业务关联" },
-    { source: "lx-3", target: "lx-8", relation: "业务关联" },
-    { source: "lx-5", target: "vp-1", relation: "产品关联" },
-    { source: "lx-7", target: "td-3", relation: "市场关联" },
-
-    // 充电桩业务关联
-    { source: "lx-3", target: "cd-2", relation: "业务关联" },
-    { source: "cd-2", target: "cd-1", relation: "产品关系" },
-    { source: "cd-1", target: "cd-3", relation: "商务关系" },
-
-    // 虚拟电厂关联
-    { source: "lx-3", target: "vp-1", relation: "业务关联" },
-    { source: "lx-3", target: "vp-2", relation: "业务关联" },
-    { source: "vp-1", target: "vp-2", relation: "方案关系" },
-    { source: "vp-1", target: "vp-3", relation: "业务关联" },
-    { source: "vp-2", target: "cd-1", relation: "场景关联" },
-    { source: "lx-5", target: "vp-2", relation: "产品关联" },
-
-    // 可信数据空间关联
-    { source: "td-1", target: "td-2", relation: "包含关系" },
-    { source: "td-3", target: "td-4", relation: "市场机会" },
-    { source: "td-3", target: "td-5", relation: "市场机会" },
-    { source: "td-6", target: "td-3", relation: "数据支撑" },
-    { source: "td-6", target: "td-7", relation: "平台关联" },
-    { source: "td-3", target: "td-8", relation: "政策关联" },
-
-    // 数据基础设施标准关联
-    { source: "ndi-1", target: "ndi-2", relation: "标准关联" },
-    { source: "ndi-1", target: "ndi-3", relation: "标准关联" },
-    { source: "ndi-1", target: "ndi-5", relation: "流程关联" },
-    { source: "ndi-4", target: "td-3", relation: "政策驱动" },
-    { source: "ndi-4", target: "td-8", relation: "政策驱动" },
-
-    // 跨类关联
-    { source: "td-2", target: "ndi-1", relation: "技术支撑" },
-    { source: "cd-2", target: "lx-2", relation: "AI能力支撑" },
-    { source: "vp-3", target: "lx-7", relation: "交易关联" },
-    { source: "lx-6", target: "vp-2", relation: "充电场景聚合" }
-  ]
-};
-const CATEGORY_CONFIG = {
-  "朗新科技": { color: "#3B82F6", emoji: "🏢" },
-  "可信数据空间": { color: "#10B981", emoji: "🔐" },
-  "充电桩": { color: "#F97316", emoji: "⚡" },
-  "虚拟电厂": { color: "#EF4444", emoji: "⚡" },
-  "数据基础设施": { color: "#8B5CF6", emoji: "🏛️" }
-};
-
-// 获取所有分类
-function getCategories() {
-  return Object.keys(CATEGORY_CONFIG);
+function init(){
+  renderTabs();renderLegend();renderGraph();
 }
-// 获取分类颜色
-function getCategoryColor(category) {
-  return CATEGORY_CONFIG[category]?.color || "#6B7280";
+function renderTabs(){
+  const cats=['全部',...Object.keys(CC)];
+  const cnt={};
+  cats.forEach(c=>cnt[c]=c==='全部'?D.nodes.length:D.nodes.filter(n=>n.category===c).length);
+  document.getElementById('tabs').innerHTML=cats.map(c=>`<button class="tab ${c===ct?'active':''}" onclick="setTab('${c}')">${c==='全部'?'📚':CC[c].emoji} ${c} <span class="count">${cnt[c]}</span></button>`).join('');
 }
-// 获取分类emoji
-function getCategoryEmoji(category) {
-  return CATEGORY_CONFIG[category]?.emoji || "📄";
+function setTab(t){ct=t;renderTabs();cv==='graph'?renderGraph():renderList();}
+function setView(v){
+  cv=v;
+  document.getElementById('btn-graph').classList.toggle('active',v==='graph');
+  document.getElementById('btn-list').classList.toggle('active',v==='list');
+  document.getElementById('graph-view').style.display=v==='graph'?'block':'none';
+  document.getElementById('list-view').style.display=v==='list'?'block':'none';
+  if(v==='graph')setTimeout(renderGraph,50);else renderList();
 }
-
-</script>
-<script>
-  // State
-  let currentTab = '全部';
-  let currentView = 'graph';
-  let searchQuery = '';
-  let simulation = null;
-
-  // Init
-  function init() {
-    renderTabs();
-    renderLegend();
-    renderGraph();
-  }
-
-  // ========== Tabs ==========
-  function renderTabs() {
-    const container = document.getElementById('tabs-container');
-    const cats = ['全部', ...Object.keys(CATEGORY_CONFIG)];
-    const counts = {};
-    cats.forEach(c => {
-      counts[c] = c === '全部' ? KNOWLEDGE_DATA.nodes.length : KNOWLEDGE_DATA.nodes.filter(n => n.category === c).length;
-    });
-    container.innerHTML = cats.map(c => {
-      const active = c === currentTab ? 'active' : '';
-      const emoji = c === '全部' ? '📚' : (CATEGORY_CONFIG[c]?.emoji || '📄');
-      return `<button class="tab ${active}" onclick="switchTab('${c}')">${emoji} ${c} <span class="count">${counts[c]}</span></button>`;
-    }).join('');
-  }
-
-  function switchTab(tab) {
-    currentTab = tab;
-    renderTabs();
-    if (currentView === 'graph') renderGraph();
-    else renderList();
-  }
-
-  // ========== View toggle ==========
-  function switchView(view) {
-    currentView = view;
-    document.getElementById('btn-graph').classList.toggle('active', view === 'graph');
-    document.getElementById('btn-list').classList.toggle('active', view === 'list');
-    document.getElementById('graph-view').style.display = view === 'graph' ? 'block' : 'none';
-    document.getElementById('list-view').style.display = view === 'list' ? 'block' : 'none';
-    if (view === 'graph') { setTimeout(renderGraph, 50); }
-    else renderList();
-  }
-
-  // ========== Search ==========
-  function handleSearch() {
-    searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
-    if (currentView === 'graph') renderGraph();
-    else renderList();
-  }
-
-  function highlightText(text, query) {
-    if (!query) return text;
-    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-    return text.replace(regex, '<span class="highlight">$1</span>');
-  }
-
-  // ========== Filter ==========
-  function getFilteredNodes() {
-    return KNOWLEDGE_DATA.nodes.filter(n => {
-      const matchTab = currentTab === '全部' || n.category === currentTab;
-      const matchSearch = !searchQuery ||
-        n.label.toLowerCase().includes(searchQuery) ||
-        n.summary.toLowerCase().includes(searchQuery);
-      return matchTab && matchSearch;
-    });
-  }
-
-  function getFilteredLinks(nodes) {
-    const ids = new Set(nodes.map(n => n.id));
-    return KNOWLEDGE_DATA.links.filter(l => {
-      const src = typeof l.source === 'object' ? l.source.id : l.source;
-      const tgt = typeof l.target === 'object' ? l.target.id : l.target;
-      return ids.has(src) && ids.has(tgt);
-    });
-  }
-
-  // ========== Graph ==========
-  function renderGraph() {
-    const container = document.getElementById('graph-view');
-    const svgEl = document.getElementById('graph-svg');
-    const svg = d3.select('#graph-svg');
-    svg.selectAll('*').remove();
-
-    const width = Math.max(container.clientWidth || 800, 320);
-    const height = container.clientHeight || 600;
-    svg.attr('viewBox', `0 0 ${width} ${height}`);
-
-    const nodes = getFilteredNodes();
-    const links = getFilteredLinks(nodes);
-
-    if (nodes.length === 0) {
-      svg.append('text')
-        .attr('x', width / 2).attr('y', height / 2)
-        .attr('text-anchor', 'middle').attr('fill', '#94a3b8')
-        .attr('font-size', '14px').text('没有找到匹配的知识点');
-      return;
-    }
-
-    // Deep copy nodes and links for D3 mutation
-    const nodesCopy = nodes.map(n => ({ ...n }));
-    const linksCopy = links.map(l => ({ ...l }));
-
-    // Zoom
-    const zoom = d3.zoom().scaleExtent([0.1, 5])
-      .on('zoom', e => g.attr('transform', e.transform));
-    svg.call(zoom);
-    svg.on('dblclick.zoom', null);
-
-    const g = svg.append('g');
-
-    // Links
-    const link = g.append('g').attr('class', 'links')
-      .selectAll('line').data(linksCopy)
-      .join('line').attr('class', 'link');
-
-    // Nodes
-    const node = g.append('g').attr('class', 'nodes')
-      .selectAll('g').data(nodesCopy)
-      .join('g').attr('class', 'node')
-      .call(d3.drag()
-        .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
-        .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
-        .on('end', (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
-      );
-
-    // Node circles
-    node.append('circle')
-      .attr('r', d => Math.min(8 + (d.connections || 0) * 3, 28))
-      .attr('fill', d => getCategoryColor(d.category))
-      .attr('stroke', '#0f172a').attr('stroke-width', 2)
-      .on('click', (e, d) => { e.stopPropagation(); showDetail(d); });
-
-    // Node labels
-    node.append('text')
-      .attr('dy', d => Math.min(8 + (d.connections || 0) * 3, 28) + 14)
-      .text(d => d.label.length > 14 ? d.label.slice(0, 14) + '…' : d.label);
-
-    // Force simulation
-    if (simulation) simulation.stop();
-    simulation = d3.forceSimulation(nodesCopy)
-      .force('link', d3.forceLink(linksCopy).id(d => d.id).distance(130))
-      .force('charge', d3.forceManyBody().strength(-450))
-      .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(d => Math.min(8 + (d.connections || 0) * 3, 28) + 15))
-      .on('tick', () => {
-        link
-          .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
-          .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
-        node.attr('transform', d => `translate(${d.x},${d.y})`);
-      });
-
-    // Background click to close
-    svg.on('click', () => closeDetail());
-
-    // Search fade
-    if (searchQuery) {
-      node.each(function(d) {
-        const match = d.label.toLowerCase().includes(searchQuery) || d.summary.toLowerCase().includes(searchQuery);
-        d3.select(this).classed('faded', !match);
-      });
-      link.classed('faded', d => {
-        const srcMatch = d.source.label?.toLowerCase().includes(searchQuery) || d.source.summary?.toLowerCase().includes(searchQuery);
-        const tgtMatch = d.target.label?.toLowerCase().includes(searchQuery) || d.target.summary?.toLowerCase().includes(searchQuery);
-        return !srcMatch && !tgtMatch;
-      });
-    }
-  }
-
-  // ========== List ==========
-  function renderList() {
-    const grid = document.getElementById('card-grid');
-    const nodes = getFilteredNodes();
-    if (nodes.length === 0) {
-      grid.innerHTML = '<div class="empty-state"><p>没有找到匹配的知识点</p></div>';
-      return;
-    }
-    grid.innerHTML = nodes.map(n => {
-      const color = getCategoryColor(n.category);
-      const emoji = getCategoryEmoji(n.category);
-      const hlLabel = highlightText(n.label, searchQuery);
-      const hlSummary = highlightText(n.summary, searchQuery);
-      return `
-        <div class="card" onclick="showDetailFromId('${n.id}')">
-          <div class="card-header">
-            <div class="card-title">${hlLabel}</div>
-            <span class="card-category" style="background:${color}">${emoji}</span>
-          </div>
-          <div class="card-summary">${hlSummary}</div>
-          <div class="card-footer">
-            <span class="card-source">${n.source}</span>
-            <span style="font-size:11px;color:var(--text-secondary)">${n.connections || 0} 个关联</span>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // ========== Detail panel ==========
-  function showDetail(node) {
-    const color = getCategoryColor(node.category);
-    const emoji = getCategoryEmoji(node.category);
-
-    // Find related
-    const related = [];
-    KNOWLEDGE_DATA.links.forEach(l => {
-      const srcId = typeof l.source === 'object' ? l.source.id : l.source;
-      const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
-      if (srcId === node.id) {
-        const n = KNOWLEDGE_DATA.nodes.find(x => x.id === tgtId);
-        if (n) related.push({ node: n, relation: l.relation });
-      }
-      if (tgtId === node.id) {
-        const n = KNOWLEDGE_DATA.nodes.find(x => x.id === srcId);
-        if (n) related.push({ node: n, relation: l.relation });
-      }
-    });
-
-    document.getElementById('detail-title').textContent = node.label;
-    document.getElementById('detail-body').innerHTML = `
-      <div class="detail-section">
-        <div class="detail-label">分类</div>
-        <span class="detail-category" style="background:${color}">${emoji} ${node.category}</span>
-      </div>
-      <div class="detail-section">
-        <div class="detail-label">摘要</div>
-        <div class="detail-value">${node.summary}</div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-label">来源</div>
-        <div class="detail-value">${node.source}</div>
-      </div>
-      <div class="detail-section">
-        <div class="detail-label">关联知识 (${related.length})</div>
-        ${related.length > 0
-          ? `<div class="detail-relations">${related.map(r => `
-            <div class="relation-item" onclick="jumpToNode('${r.node.id}')">
-              <div class="relation-name">${r.node.label}</div>
-              <div class="relation-type">${r.relation}</div>
-            </div>`).join('')}</div>`
-          : '<div class="detail-value">暂无关联</div>'}
-      </div>
-      <div class="detail-section">
-        <a href="${node.url}" target="_blank" class="detail-url">🔗 查看归档原文</a>
-      </div>
-    `;
-    document.getElementById('detail-panel').classList.add('open');
-    highlightGraphNodes(node.id);
-  }
-
-  function showDetailFromId(id) {
-    const node = KNOWLEDGE_DATA.nodes.find(n => n.id === id);
-    if (node) showDetail(node);
-  }
-
-  function closeDetail() {
-    document.getElementById('detail-panel').classList.remove('open');
-    clearGraphHighlight();
-  }
-
-  function jumpToNode(nodeId) {
-    const node = KNOWLEDGE_DATA.nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    switchTab(node.category);
-    if (currentView !== 'graph') switchView('graph');
-    setTimeout(() => {
-      showDetail(node);
-    }, 300);
-  }
-
-  function highlightGraphNodes(nodeId) {
-    if (currentView !== 'graph') return;
-    const svg = d3.select('#graph-svg');
-    const relatedIds = new Set([nodeId]);
-    KNOWLEDGE_DATA.links.forEach(l => {
-      const srcId = typeof l.source === 'object' ? l.source.id : l.source;
-      const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
-      if (srcId === nodeId) relatedIds.add(tgtId);
-      if (tgtId === nodeId) relatedIds.add(srcId);
-    });
-    svg.selectAll('.node').classed('faded', d => !relatedIds.has(d.id));
-    svg.selectAll('.link').classed('faded', d => {
-      const srcId = typeof d.source === 'object' ? d.source.id : d.source;
-      const tgtId = typeof d.target === 'object' ? d.target.id : d.target;
-      return srcId !== nodeId && tgtId !== nodeId;
-    });
-  }
-
-  function clearGraphHighlight() {
-    if (currentView !== 'graph') return;
-    const svg = d3.select('#graph-svg');
-    svg.selectAll('.node').classed('faded', false);
-    svg.selectAll('.link').classed('faded', false);
-  }
-
-  // ========== Legend ==========
-  function renderLegend() {
-    const el = document.getElementById('graph-legend');
-    el.innerHTML = `
-      <div class="legend-title">图例</div>
-      <div class="legend-items">
-        ${Object.entries(CATEGORY_CONFIG).map(([cat, cfg]) => `
-          <div class="legend-item">
-            <div class="legend-dot" style="background:${cfg.color}"></div>
-            <span>${cfg.emoji} ${cat}</span>
-          </div>`).join('')}
-      </div>
-    `;
-  }
-
-  // ========== Resize ==========
-  window.addEventListener('resize', () => {
-    if (currentView === 'graph') renderGraph();
-  });
-
-  // ========== Start ==========
-  init();
-</script>
-<script>
-const KNOWLEDGE_DATA = {
-  nodes: [
-    // ========== 朗新科技 ==========
-    {
-      id: "lx-1",
-      label: "朗新科技集团中文画册（2025版）",
-      category: "朗新科技",
-      summary: "总部位于无锡，拥有1.4万政企客户、5亿用户覆盖、31省区、15个国家业务布局",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-1",
-      connections: 3
-    },
-    {
-      id: "lx-2",
-      label: "朗新AI研究院核心能力",
-      category: "朗新科技",
-      summary: "2023年成立，专注于时序预测、大模型、多模态、AIGC等核心能力，充电站收益增长15%",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-2",
-      connections: 3
-    },
-    {
-      id: "lx-3",
-      label: "朗新核心业务场景",
-      category: "朗新科技",
-      summary: "涵盖聚合充电（新电途）、电力市场化交易、虚拟电厂、光伏云等核心业务场景",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-3",
-      connections: 5
-    },
-    {
-      id: "lx-4",
-      label: "朗新科技发展历程",
-      category: "朗新科技",
-      summary: "1996北京创立→2006无锡→2013创业板上市→2017支付宝合作→2019双轨战略→2023 AI研究院",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-4",
-      connections: 1
-    },
-    {
-      id: "lx-5",
-      label: "朗新虚拟电厂产品",
-      category: "朗新科技",
-      summary: "城市新型基础设施，支持负荷型/电源型/混合型，收益来源：电力市场+辅助服务+需求响应",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-5",
-      connections: 2
-    },
-
-    // ========== 可信数据空间 ==========
-    {
-      id: "td-1",
-      label: "可信数据空间定义与定位",
-      category: "可信数据空间",
-      summary: "国家级数据流通基础设施，实现「供得出、流得动、用得好、保安全」四大目标",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-1",
-      connections: 2
-    },
-    {
-      id: "td-2",
-      label: "可信数据空间核心技术体系",
-      category: "可信数据空间",
-      summary: "包含可信管控（区块链+智能合约）、隐私计算（TEE/MPC/联邦学习）、连接器、数据治理",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-2",
-      connections: 2
-    },
-    {
-      id: "td-3",
-      label: "可信数据空间市场特征",
-      category: "可信数据空间",
-      summary: "单项目规模2000万+，政策密集出台，技术门槛高，目标2028年建设100个可信数据空间",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-3",
-      connections: 5
-    },
-    {
-      id: "td-4",
-      label: "行业类可信数据空间招标项目",
-      category: "可信数据空间",
-      summary: "典型项目：国家管网1664万、山西2500万、湖南TEE+MPC技术路线",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-4",
-      connections: 1
-    },
-    {
-      id: "td-5",
-      label: "城市级可信数据空间招标项目",
-      category: "可信数据空间",
-      summary: "典型项目：雄安3200万、德州2087万、呼和浩特3591万",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-5",
-      connections: 1
-    },
-    {
-      id: "td-6",
-      label: "南网数据开放目录(149项)",
-      category: "可信数据空间",
-      summary: "发布于dm.csg.cn，涵盖治理、经济、绿色低碳、民生四大类，160+跨行业数据",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-6",
-      connections: 2
-    },
-    {
-      id: "td-7",
-      label: "南网可信数据空间注册入驻",
-      category: "可信数据空间",
-      summary: "入驻平台data.csg.cn，需邀请码，3工作日内完成审核",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-7",
-      connections: 1
-    },
-
-    // ========== 充电桩 ==========
-    {
-      id: "cd-1",
-      label: "充电桩选址大数据服务",
-      category: "充电桩",
-      summary: "基于城市经济、新能源车保有量、热力图、供需缺口分析，提供定容推荐服务",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#cd-1",
-      connections: 3
-    },
-    {
-      id: "cd-2",
-      label: "充电AI智能选址产品",
-      category: "充电桩",
-      summary: "多维时空大数据+AI模型融合，秒出选址报告，智能推荐最优位置",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#cd-2",
-      connections: 3
-    },
-    {
-      id: "cd-3",
-      label: "充电桩选址合作协议",
-      category: "充电桩",
-      summary: "2000次查询额度，合同期1年，违约金每日万分之五",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#cd-3",
-      connections: 1
-    },
-
-    // ========== 虚拟电厂 ==========
-    {
-      id: "vp-1",
-      label: "虚拟电厂产品解决方案",
-      category: "虚拟电厂",
-      summary: "源网荷储一体化，实现削峰填谷、辅助服务、电力市场化交易三大功能",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#vp-1",
-      connections: 3
-    },
-    {
-      id: "vp-2",
-      label: "园区微电网能源运营",
-      category: "虚拟电厂",
-      summary: "聚合光伏、储能、充电桩，度电成本从0.85元降至0.57元",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#vp-2",
-      connections: 2
-    },
-
-    // ========== 数据基础设施标准 ==========
-    {
-      id: "ndi-1",
-      label: "NDI互联互通基本要求",
-      category: "数据基础设施",
-      summary: "数据登记→上架→目录上报→下发→发现→交互，6步标准化流程",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-1",
-      connections: 3
-    },
-    {
-      id: "ndi-2",
-      label: "NDI用户身份管理规范",
-      category: "数据基础设施",
-      summary: "覆盖接入主体、连接器、平台身份注册认证全链路",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-2",
-      connections: 1
-    },
-    {
-      id: "ndi-3",
-      label: "数据基础设施区域功能节点",
-      category: "数据基础设施",
-      summary: "具备身份管理、标识管理、目录管理等核心能力",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-3",
-      connections: 1
-    },
-    {
-      id: "ndi-4",
-      label: "「数据要素×」三年行动计划",
-      category: "数据基础设施",
-      summary: "目标2026年建设300+示范场景，数据产业年均增速超20%",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-4",
-      connections: 2
-    },
-
-    // ========== 补充扩展节点（丰富图谱） ==========
-    {
-      id: "lx-6",
-      label: "新电途聚合充电网络",
-      category: "朗新科技",
-      summary: "覆盖全国主要城市的聚合充电网络，连接多家运营商，提供统一支付和服务",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-6",
-      connections: 2
-    },
-    {
-      id: "lx-7",
-      label: "电力市场化交易平台",
-      category: "朗新科技",
-      summary: "支持电力现货交易、中长期交易、辅助服务交易的全场景交易平台",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-7",
-      connections: 2
-    },
-    {
-      id: "lx-8",
-      label: "光伏云平台",
-      category: "朗新科技",
-      summary: "分布式光伏电站监控、运维、发电预测的一体化云平台",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#lx-8",
-      connections: 1
-    },
-    {
-      id: "td-8",
-      label: "数据要素市场政策体系",
-      category: "可信数据空间",
-      summary: "国家数据局主导的「数据要素×」行动计划，构建数据流通顶层设计",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#td-8",
-      connections: 2
-    },
-    {
-      id: "vp-3",
-      label: "负荷聚合商运营",
-      category: "虚拟电厂",
-      summary: "聚合工业负荷、商业负荷、居民负荷，参与电网调峰调频",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#vp-3",
-      connections: 2
-    },
-    {
-      id: "ndi-5",
-      label: "数据登记与确权",
-      category: "数据基础设施",
-      summary: "数据资产登记、数据确权、数据质量评估全流程规范",
-      source: "knowledge-index.md",
-      url: "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-index.md#ndi-5",
-      connections: 1
-    }
-  ],
-
-  links: [
-    // 朗新科技内部关联
-    { source: "lx-2", target: "lx-3", relation: "研发支撑业务" },
-    { source: "lx-1", target: "lx-2", relation: "内容关联" },
-    { source: "lx-1", target: "lx-3", relation: "内容关联" },
-    { source: "lx-1", target: "lx-6", relation: "产品关联" },
-    { source: "lx-3", target: "lx-6", relation: "业务关联" },
-    { source: "lx-3", target: "lx-7", relation: "业务关联" },
-    { source: "lx-3", target: "lx-8", relation: "业务关联" },
-    { source: "lx-5", target: "vp-1", relation: "产品关联" },
-    { source: "lx-7", target: "td-3", relation: "市场关联" },
-
-    // 充电桩业务关联
-    { source: "lx-3", target: "cd-2", relation: "业务关联" },
-    { source: "cd-2", target: "cd-1", relation: "产品关系" },
-    { source: "cd-1", target: "cd-3", relation: "商务关系" },
-
-    // 虚拟电厂关联
-    { source: "lx-3", target: "vp-1", relation: "业务关联" },
-    { source: "lx-3", target: "vp-2", relation: "业务关联" },
-    { source: "vp-1", target: "vp-2", relation: "方案关系" },
-    { source: "vp-1", target: "vp-3", relation: "业务关联" },
-    { source: "vp-2", target: "cd-1", relation: "场景关联" },
-    { source: "lx-5", target: "vp-2", relation: "产品关联" },
-
-    // 可信数据空间关联
-    { source: "td-1", target: "td-2", relation: "包含关系" },
-    { source: "td-3", target: "td-4", relation: "市场机会" },
-    { source: "td-3", target: "td-5", relation: "市场机会" },
-    { source: "td-6", target: "td-3", relation: "数据支撑" },
-    { source: "td-6", target: "td-7", relation: "平台关联" },
-    { source: "td-3", target: "td-8", relation: "政策关联" },
-
-    // 数据基础设施标准关联
-    { source: "ndi-1", target: "ndi-2", relation: "标准关联" },
-    { source: "ndi-1", target: "ndi-3", relation: "标准关联" },
-    { source: "ndi-1", target: "ndi-5", relation: "流程关联" },
-    { source: "ndi-4", target: "td-3", relation: "政策驱动" },
-    { source: "ndi-4", target: "td-8", relation: "政策驱动" },
-
-    // 跨类关联
-    { source: "td-2", target: "ndi-1", relation: "技术支撑" },
-    { source: "cd-2", target: "lx-2", relation: "AI能力支撑" },
-    { source: "vp-3", target: "lx-7", relation: "交易关联" },
-    { source: "lx-6", target: "vp-2", relation: "充电场景聚合" }
-  ]
-};
-const CATEGORY_CONFIG = {
-  "朗新科技": { color: "#3B82F6", emoji: "🏢" },
-  "可信数据空间": { color: "#10B981", emoji: "🔐" },
-  "充电桩": { color: "#F97316", emoji: "⚡" },
-  "虚拟电厂": { color: "#EF4444", emoji: "⚡" },
-  "数据基础设施": { color: "#8B5CF6", emoji: "🏛️" }
-};
-
-function getCategories() { return Object.keys(CATEGORY_CONFIG); }
-function getCategoryColor(c) { return CATEGORY_CONFIG[c]?.color || "#6B7280"; }
-function getCategoryEmoji(c) { return CATEGORY_CONFIG[c]?.emoji || "📄"; }
-
+function onSearch(){sq=document.getElementById('search-input').value.trim().toLowerCase();cv==='graph'?renderGraph():renderList();}
+function hl(txt,q){if(!q)return txt;return txt.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<span class=highlight>$1</span>');}
+function fn(){return D.nodes.filter(n=>{const okT=ct==='全部'||n.category===ct;const okQ=!sq||n.label.toLowerCase().includes(sq)||n.summary.toLowerCase().includes(sq);return okT&&okQ;});}
+function fl(nodes){const ids=new Set(nodes.map(n=>n.id));return D.links.filter(l=>{const s=typeof l.source==='object'?l.source.id:l.source;const t=typeof l.target==='object'?l.target.id:l.target;return ids.has(s)&&ids.has(t);});}
+function renderGraph(){
+  const svg=d3.select('#graph-svg');
+  const W=document.getElementById('graph-view').clientWidth||800;
+  const H=document.getElementById('graph-view').clientHeight||600;
+  const nodes=fn(),links=fl(nodes);
+  const nc=nodes.map(n=>({...n})),lc=links.map(l=>({...l}));
+  nc.forEach(n=>{n.x=W/2+(Math.random()-.5)*W*.8;n.y=H/2+(Math.random()-.5)*H*.8;});
+  svg.selectAll('*').remove();svg.attr('viewBox',`0 0 ${W} ${H}`);
+  const zoom=d3.zoom().scaleExtent([.1,5]).on('zoom',e=>g.attr('transform',e.transform));
+  svg.call(zoom);svg.on('dblclick.zoom',null);
+  const g=svg.append('g');
+  const link=g.append('g').selectAll('line').data(lc).join('line').attr('class','graph-link');
+  const node=g.append('g').selectAll('g').data(nc).join('g').attr('class','graph-node').call(d3.drag().on('start',(e,d)=>{if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y;}).on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;}).on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null;}));
+  node.append('circle').attr('r',d=>Math.min(8+(d.connections||0)*2.5,26)).attr('fill',d=>CC[d.category]?.color||'#6B7280').attr('stroke','#0f172a').attr('stroke-width',2).on('click',(e,d)=>{e.stopPropagation();showDetail(d);});
+  node.append('text').attr('dy',d=>Math.min(8+(d.connections||0)*2.5,26)+14).text(d=>d.label.length>13?d.label.slice(0,13)+'…':d.label);
+  if(sim)sim.stop();
+  sim=d3.forceSimulation(nc).force('link',d3.forceLink(lc).id(d=>d.id).distance(130)).force('charge',d3.forceManyBody().strength(-400)).force('center',d3.forceCenter(W/2,H/2)).force('collision',d3.forceCollide().radius(d=>Math.min(8+(d.connections||0)*2.5,26)+12)).on('tick',()=>{link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);node.attr('transform',d=>`translate(${d.x},${d.y})`);});
+  if(sq){node.classed('faded',d=>!d.label.toLowerCase().includes(sq)&&!d.summary.toLowerCase().includes(sq));link.classed('faded',d=>{const sm=d.source.label?.toLowerCase().includes(sq)||d.source.summary?.toLowerCase().includes(sq);const tm=d.target.label?.toLowerCase().includes(sq)||d.target.summary?.toLowerCase().includes(sq);return!sm&&!tm;});}
+  svg.on('click',()=>closeDetail());
+  if(!nodes.length)g.append('text').attr('x',W/2).attr('y',H/2).attr('text-anchor','middle').attr('fill','#94a3b8').attr('font-size',14).text('没有找到匹配的知识点');
+}
+function renderList(){
+  const grid=document.getElementById('cards');
+  const nodes=fn();
+  if(!nodes.length){grid.innerHTML='<div class=empty-state><p>没有找到匹配的知识点</p></div>';return;}
+  grid.innerHTML=nodes.map(n=>`<div class=card onclick=showDetailById('${n.id}')><div class=card-header><div class=card-title>${hl(n.label,sq)}</div><span class=card-category style=background:${CC[n.category]?.color}>${CC[n.category]?.emoji}</span></div><div class=card-summary>${hl(n.summary,sq)}</div><div class=card-footer><span class=card-source>${n.source}</span><span style=font-size:10px;color:var(--text-secondary)>${n.connections}个关联</span></div></div>`).join('');
+}
+function showDetail(n){
+  const color=CC[n.category]?.color||'#6B7280',emoji=CC[n.category]?.emoji||'📄';
+  const related=[];
+  D.links.forEach(l=>{const s=typeof l.source==='object'?l.source.id:l.source;const t=typeof l.target==='object'?l.target.id:l.target;if(s===n.id){const x=D.nodes.find(m=>m.id===t);if(x)related.push({node:x,rel:l.relation});}if(t===n.id){const x=D.nodes.find(m=>m.id===s);if(x)related.push({node:x,rel:l.relation});}});
+  document.getElementById('detail-title').textContent=n.label;
+  document.getElementById('detail-body').innerHTML=`<div class=detail-section><div class=detail-label>分类</div><span class=detail-category style=background:${color}>${emoji} ${n.category}</span></div><div class=detail-section><div class=detail-label>摘要</div><div class=detail-value>${n.summary}</div></div><div class=detail-section><div class=detail-label>来源</div><div class=detail-value>${n.source}</div></div><div class=detail-section><div class=detail-label>关联知识 (${related.length})</div>${related.length?`<div class=detail-relations>${related.map(r=>`<div class=relation-item onclick=jumpTo('${r.node.id}')><div class=relation-name>${r.node.label}</div><div class=relation-type>${r.rel}</div></div>`).join('')}</div>`:'<div class=detail-value>暂无关联</div>'}</div><div class=detail-section><a href=${n.url} target=_blank class=detail-url>🔗 查看归档原文</a></div>`;
+  document.getElementById('detail').classList.add('open');
+  hlG(n.id);
+}
+function showDetailById(id){const n=D.nodes.find(m=>m.id===id);if(n)showDetail(n);}
+function closeDetail(){document.getElementById('detail').classList.remove('open');clG();}
+function jumpTo(id){const n=D.nodes.find(m=>m.id===id);if(!n)return;setTab(n.category);if(cv!=='graph')setView('graph');setTimeout(()=>showDetail(n),300);}
+function hlG(id){if(cv!=='graph')return;const svg=d3.select('#graph-svg');const rid=new Set([id]);D.links.forEach(l=>{const s=typeof l.source==='object'?l.source.id:l.source;const t=typeof l.target==='object'?l.target.id:l.target;if(s===id)rid.add(t);if(t===id)rid.add(s);});svg.selectAll('.graph-node').classed('faded',d=>!rid.has(d.id));svg.selectAll('.graph-link').classed('faded',d=>{const s=typeof d.source==='object'?d.source.id:d.source;const t=typeof d.target==='object'?d.target.id:d.target;return s!==id&&t!==id;});}
+function clG(){if(cv!=='graph')return;const svg=d3.select('#graph-svg');svg.selectAll('.graph-node').classed('faded',false);svg.selectAll('.graph-link').classed('faded',false);}
+function renderLegend(){document.getElementById('legend').innerHTML=`<div class=legend-title>图例</div><div class=legend-items>${Object.entries(CC).map(([c,cfg])=>`<div class=legend-item><div class=legend-dot style=background:${cfg.color}></div><span>${cfg.emoji} ${c}</span></div>`).join('')}</div>`;}
+window.addEventListener('resize',()=>{if(cv==='graph')renderGraph();});
+init();
 </script>
 </body>
 </html>

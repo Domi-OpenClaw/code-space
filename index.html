@@ -897,6 +897,9 @@
       const color = getCategoryColor(node.category);
       const emoji = getCategoryEmoji(node.category);
       
+      // Highlight graph nodes
+      highlightGraphNodes(node.id);
+      
       // Find related nodes
       const relatedLinks = KNOWLEDGE_DATA.links.filter(l => 
         (typeof l.source === 'object' ? l.source.id : l.source) === node.id ||
@@ -957,6 +960,7 @@
     function closeDetail() {
       document.getElementById('detail-panel').classList.remove('open');
       selectedNode = null;
+      clearGraphHighlight();
     }
     
     function jumpToNode(nodeId) {
@@ -971,6 +975,32 @@
         // Show detail after render
         setTimeout(() => showDetail(node), 300);
       }
+    }
+    
+    // Highlight nodes in graph when detail panel is open
+    function highlightGraphNodes(nodeId) {
+      if (currentView !== 'graph') return;
+      const svg = d3.select('#graph-svg');
+      const relatedIds = new Set([nodeId]);
+      KNOWLEDGE_DATA.links.forEach(l => {
+        const srcId = typeof l.source === 'object' ? l.source.id : l.source;
+        const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
+        if (srcId === nodeId) relatedIds.add(tgtId);
+        if (tgtId === nodeId) relatedIds.add(srcId);
+      });
+      svg.selectAll('.node').classed('faded', d => !relatedIds.has(d.id));
+      svg.selectAll('.link').classed('faded', d => {
+        const srcId = typeof d.source === 'object' ? d.source.id : d.source;
+        const tgtId = typeof d.target === 'object' ? d.target.id : d.target;
+        return srcId !== nodeId && tgtId !== nodeId;
+      });
+    }
+    
+    function clearGraphHighlight() {
+      if (currentView !== 'graph') return;
+      const svg = d3.select('#graph-svg');
+      svg.selectAll('.node').classed('faded', false);
+      svg.selectAll('.link').classed('faded', false);
     }
     
     // ========== Legend ==========

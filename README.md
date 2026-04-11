@@ -1,2 +1,7 @@
-# code-space
-Domi代码库 - demo开发与工具脚本
+# Domi Code-Space
+
+License: MIT License
+
+Description: Domi Code-Space for demo and tool scripts
+
+Drainable tools for execution on OpecClaw

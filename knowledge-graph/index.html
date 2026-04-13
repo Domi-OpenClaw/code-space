@@ -114,7 +114,7 @@ function renderTabs(){
   cats.forEach(c=>cnt[c]=c==='全部'?D.nodes.length:D.nodes.filter(n=>n.category===c).length);
   document.getElementById('tabs').innerHTML=cats.map(c=>`<button class="tab ${c===ct?'active':''}" onclick="setTab('${c}')">${c==='全部'?'📚':CC[c].emoji} ${c} <span class="count">${cnt[c]}</span></button>`).join('');
 }
-function setTab(t){ct=t;renderTabs();cv==='graph'?renderGraph():renderList();}
+function setTab(t){ct=t;showLoading(false);renderTabs();cv==='graph'?renderGraph():renderList();}
 function setView(v){
   cv=v;
   document.getElementById('btn-graph').classList.toggle('active',v==='graph');
@@ -127,8 +127,20 @@ function onSearch(){sq=document.getElementById('search-input').value.trim().toLo
 function hl(txt,q){if(!q)return txt;return txt.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<span class=highlight>$1</span>');}
 function fn(){return D.nodes.filter(n=>{const okT=ct==='全部'||n.category===ct;const okQ=!sq||n.label.toLowerCase().includes(sq)||n.summary.toLowerCase().includes(sq);return okT&&okQ;});}
 function fl(nodes){const ids=new Set(nodes.map(n=>n.id));return D.links.filter(l=>{const s=typeof l.source==='object'?l.source.id:l.source;const t=typeof l.target==='object'?l.target.id:l.target;return ids.has(s)&&ids.has(t);});}
+function showLoading(show){
+  const existing=document.getElementById('graph-loading');
+  if(show&&!existing){
+    const div=document.createElement('div');
+    div.id='graph-loading';
+    div.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(15,23,42,.85);color:#fff;padding:16px 32px;border-radius:8px;font-size:14px;z-index:9999;';
+    div.textContent='正在布局知识点…';
+    document.body.appendChild(div);
+  } else if(!show&&existing){
+    existing.remove();
+  }
+}
 let settling=false;
-function renderGraph(){
+function renderGraph(){showLoading(true);
   if(settling){return;}
   const svg=d3.select('#graph-svg');
   const W=document.getElementById('graph-view').clientWidth||800;
@@ -147,8 +159,8 @@ function renderGraph(){
   node.append('circle').attr('r',d=>Math.min(8+(d.connections||0)*2.5,26)).attr('fill',d=>CC[d.category]?.color||'#6B7280').attr('stroke','#0f172a').attr('stroke-width',2).on('click',(e,d)=>{e.stopPropagation();showDetail(d);});
   node.append('text').attr('dy',d=>Math.min(8+(d.connections||0)*2.5,26)+14).text(d=>d.label.length>13?d.label.slice(0,13)+'…':d.label);
   if(sim)sim.stop();
-  sim=d3.forceSimulation(nc).alphaDecay(.03).velocityDecay(.4).force('link',d3.forceLink(lc).id(d=>d.id).distance(80)).force('charge',d3.forceManyBody().strength(-200)).force('center',d3.forceCenter(W/2,H/2)).force('collision',d3.forceCollide().radius(d=>Math.min(8+(d.connections||0)*2.5,26)+12)).on('tick',()=>{link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);node.attr('transform',d=>`translate(${d.x},${d.y})`);}).on('end',()=>{settling=false;});
-  setTimeout(()=>{if(settling){sim.stop();settling=false;}},3000);
+  sim=d3.forceSimulation(nc).alphaDecay(.03).velocityDecay(.4).force('link',d3.forceLink(lc).id(d=>d.id).distance(80)).force('charge',d3.forceManyBody().strength(-200)).force('center',d3.forceCenter(W/2,H/2)).force('collision',d3.forceCollide().radius(d=>Math.min(8+(d.connections||0)*2.5,26)+12)).on('tick',()=>{link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);node.attr('transform',d=>`translate(${d.x},${d.y})`);}).on('end',()=>{settling=false;showLoading(false);});
+  setTimeout(()=>{if(settling){sim.stop();settling=false;showLoading(false);}},3000);
   if(sq){node.classed('faded',d=>!d.label.toLowerCase().includes(sq)&&!d.summary.toLowerCase().includes(sq));link.classed('faded',d=>{const sm=d.source.label?.toLowerCase().includes(sq)||d.source.summary?.toLowerCase().includes(sq);const tm=d.target.label?.toLowerCase().includes(sq)||d.target.summary?.toLowerCase().includes(sq);return!sm&&!tm;});}
   svg.on('click',()=>closeDetail());
   if(!nodes.length)g.append('text').attr('x',W/2).attr('y',H/2).attr('text-anchor','middle').attr('fill','#94a3b8').attr('font-size',14).text('没有找到匹配的知识点');

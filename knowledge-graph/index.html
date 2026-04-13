@@ -152,7 +152,7 @@ function renderList(){
   const grid=document.getElementById('cards');
   const nodes=fn();
   if(!nodes.length){grid.innerHTML='<div class=empty-state><p>没有找到匹配的知识点</p></div>';return;}
-  grid.innerHTML=nodes.map(n=>`<div class=card onclick=showDetailById('${n.id}')><div class=card-header><div class=card-title>${hl(n.label,sq)}</div><span class=card-category style=background:${CC[n.category]?.color}>${CC[n.category]?.emoji}</span></div><div class=card-summary>${hl(n.summary,sq)}</div><div class=card-footer><span class=card-source>${n.source}</span><span style=font-size:10px;color:var(--text-secondary)>${n.connections}个关联</span></div></div>`).join('');
+  grid.innerHTML=nodes.map(n=>`<div class=card onclick=showDetailById('${n.id}')><div class=card-header><div class=card-title>${hl(n.label,sq)}</div><span class=card-category style=background:${CC[n.category]?.color}>${CC[n.category]?.emoji}</span></div><div class=card-summary>${hl(n.summary,sq)}</div><div class=card-footer><span class=card-source>${n.date?n.date+" · ":"}${n.source}</span><span style=font-size:10px;color:var(--text-secondary)>${n.connections}个关联</span></div></div>`).join('');
 }
 function showDetail(n){
   const color=CC[n.category]?.color||'#6B7280',emoji=CC[n.category]?.emoji||'📄';

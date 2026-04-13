@@ -1,156 +1,179 @@
 #!/usr/bin/env python3
 """
-知识图谱 data.js 生成器 v2
-从 knowledge-index.md 提取知识节点 → data.js
-稳定ID策略：基于 label 匹配已有节点
+知识图谱 data.js 生成器 v4
+从 knowledge-index.md（knowledge-management 格式）提取知识节点 → data.js
+支持：date字段、直接CDN URL、分类emoji
 """
 import re, datetime
-
-# URL映射表：来源文件 → CDN URL
-URLS = {
-    "朗新科技集团中文画册-2025.pdf": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/其他/朗新科技集团中文画册-2025.pdf",
-    "朗新科技集团中文画册-2025-OCR.txt": "https://raw.githubusercontent.com/Domi-OpenClaw/file-storage/1416713a0c53dd461fd71fa2ff4113d89f97a902/%E6%9C%97%E6%96%B0%E7%A7%91%E6%8A%80%E9%9B%86%E5%9B%A2%E4%B8%AD%E6%96%87%E7%94%BB%E5%86%9C-2025-OCR.txt",
-    "可信数据空间专题报告（2026年Q1版）.pdf": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/报告/可信数据空间专题报告（2026年Q1版）.pdf",
-    "可信数据空间营销合作方案V1.1.pdf": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/文档/可信数据空间营销合作方案V1.1.pdf",
-    "【数据产品】充电桩选址服务-产品说明书.pdf": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/文档/3590bcd2-8125-480d-aeb3-417ca44a231f.pdf",
-    "虚拟电厂产品解决方案V1.0.2.pdf": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/文档/5b432fba-2c80-4db1-8793-ce121266f977.pdf",
-    "智慧能源方案1-1 基于智能微电网的园区能源运营服务解决方案1017.pdf": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/文档/17ee1ae7-8500-4de4-ba95-34711a1d9b56.pdf",
-    "南方电网公司数据开放目录（第一批）.pdf": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/文档/1d6892ee-26d6-4604-91de-efbb61d99435.pdf",
-    "充电选址产品介绍PPT（外发）.pptx": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/其他/f8bd69e8-8c98-4210-a76e-50a52d0208ea.pptx",
-    "大数据选址平台服务合作协议.docx": "https://cdn.jsdelivr.net/gh/Domi-OpenClaw/file-storage@main/文档/3659b309-5355-4c6d-858a-9b1665850a7e.docx",
-}
-
-CATEGORIES = ["朗新科技", "可信数据空间", "充电桩", "虚拟电厂", "数据基础设施"]
-CAT_PREFIX = {"朗新科技": "lx", "可信数据空间": "td", "充电桩": "cd", "虚拟电厂": "vp", "数据基础设施": "ndi"}
 
 INDEX_FILE = "/home/admin/.openclaw/workspace/code-space/knowledge-graph/knowledge-index.md"
 DATA_FILE = "/home/admin/.openclaw/workspace/code-space/knowledge-graph/data.js"
 
-# ── Load existing nodes (for stable IDs) ────────────────────────────────────
-existing = {}   # label → {id, category, connections}
-existing_links = []  # [(source, target, relation)]
-try:
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        raw = f.read()
-    # Parse nodes
-    for m in re.finditer(r'id:\s*"([^"]+)",\s*label:\s*"([^"]+)",\s*category:\s*"([^"]+)",\s*summary:\s*"([^"]+)",\s*source:\s*"([^"]+)",\s*url:\s*"([^"]+)",\s*connections:\s*(\d+)', raw):
-        nid, label, cat, summary, source, url, conn = m.groups()
-        existing[label] = {"id": nid, "category": cat, "connections": int(conn), "url": url}
-    # Parse links
-    for m in re.finditer(r'source:\s*"([^"]+)",\s*target:\s*"([^"]+)",\s*relation:\s*"([^"]+)"', raw):
-        existing_links.append((m.group(1), m.group(2), m.group(3)))
-except Exception as e:
-    print(f"Warning loading existing data: {e}")
+# 分类配置
+CC = {
+    "朗新科技":       { "color": "#3B82F6", "emoji": "🏢" },
+    "可信数据空间":   { "color": "#10B981", "emoji": "🔐" },
+    "充电桩":         { "color": "#F97316", "emoji": "⚡" },
+    "虚拟电厂":       { "color": "#EF4444", "emoji": "🔋" },
+    "数据基础设施":   { "color": "#8B5CF6", "emoji": "🏛️" },
+    "default":        { "color": "#6B7280", "emoji": "📄" }
+}
 
-# ── Parse knowledge-index.md ─────────────────────────────────────────────────
+# === 解析 knowledge-index.md ===
 with open(INDEX_FILE, "r", encoding="utf-8") as f:
-    raw = f.read()
+    content = f.read()
 
-# Split into node blocks by ## headers
+# 按 ## [标题] 分割块
 blocks = []
-for line in raw.split('\n'):
-    if line.startswith('## '):
-        blocks.append({"title": line[3:].strip(), "lines": []})
-    elif blocks:
-        blocks[-1]["lines"].append(line)
+current_title = None
+current_lines = []
+in_block = False
 
-SKIP_TITLES = {'📋 已归档文件清单', '🧠 知识提炼成果', 'Source File', '来源文件', '提炼时间'}
+for line in content.split('\n'):
+    if line.startswith('## ['):
+        if current_title:
+            blocks.append((current_title, current_lines))
+        m = re.match(r'^##\s*\[([^\]]+)\]', line)
+        current_title = m.group(1) if m else None
+        current_lines = [line]
+        in_block = True
+    elif in_block:
+        current_lines.append(line)
 
+if current_title:
+    blocks.append((current_title, current_lines))
+
+print(f"Parsed {len(blocks)} knowledge blocks")
+
+# === 提取节点数据 ===
 nodes_out = []
-cat_counters = {c: 0 for c in CATEGORIES}
-id_to_label = {}
+for title, lines in blocks:
+    # Extract category (from tags or default)
+    cat = "数据基础设施"
+    for ln in lines:
+        ln_s = ln.strip()
+        if ln_s.startswith('- **标签**') or ln_s.startswith('- 标签:'):
+            for c in CC:
+                if c in ln_s and c != "default":
+                    cat = c
+                    break
+            break
 
-for block in blocks:
-    title = block["title"]
-    if not title or any(title.startswith(s) for s in SKIP_TITLES):
-        continue
-
-    body_text = '\n'.join(block["lines"])
-
-    # Category
-    cat = next((c for c in CATEGORIES if c in title), "数据基础设施")
-
-    # Stable ID
-    nid = None
-    if title in existing:
-        nid = existing[title]["id"]
-        cat = existing[title]["category"]
-    else:
-        # Partial match
-        for label, info in existing.items():
-            if len(title) > 5 and len(label) > 5 and (title[:8] == label[:8] or title[:10] in label):
-                nid = info["id"]
-                cat = info["category"]
-                break
-
-    if nid is None:
-        prefix = CAT_PREFIX.get(cat, "ndi")
-        cat_counters[cat] = cat_counters.get(cat, 0) + 1
-        nid = f"{prefix}-{cat_counters[cat]}"
-
-    # Extract summary: first non-metadata line
+    # Extract summary
     summary = ""
-    for ln in block["lines"]:
-        ln = ln.strip()
-        if not ln:
-            continue
-        if any(ln.startswith(x) for x in ['- 来源文件', '来源文件：', '- 归档URL', '归档URL：', '- 提炼时间', '提炼时间：', '**来源', '- **', '---', '| ', '> ', '#']):
-            break
-        if len(ln) > 5:
-            summary = ln[:180].replace('"', "'")
+    for ln in lines:
+        ln_s = ln.strip()
+        if '**摘要**' in ln_s or ln_s.startswith('- 摘要'):
+            for sep in ['**摘要**:', '**摘要:**', '摘要：', '摘要:']:
+                if sep in ln_s:
+                    summary = ln_s.split(sep, 1)[1].strip()
+                    break
+            if not summary and '摘要' in ln_s:
+                m = re.search(r'[\*\*]*摘要[\*\*：:]\s*(.+)', ln_s)
+                if m:
+                    summary = m.group(1).strip()
             break
 
-    # Source file → URL
-    src_m = re.search(r'来源文件[：:]\s*([^\n]+)', body_text)
-    src_file = src_m.group(1).strip() if src_m else ""
-    url = URLS.get(src_file, "")
+    # Extract CDN url
+    url = ""
+    for ln in lines:
+        ln_s = ln.strip()
+        if ln_s.startswith('- **归档URL**') or ln_s.startswith('- 归档URL:'):
+            if ':' in ln_s:
+                url = ln_s.split(':', 1)[1].strip().strip('*').strip()
+            break
 
-    # Connections count
-    conn = 0
-    if title in existing:
-        conn = existing[title].get("connections", 0)
-    id_to_label[nid] = title
+    # Extract date
+    date_str = ""
+    for ln in lines:
+        if '提炼时间' in ln:
+            m = re.search(r'(\d{8})', ln)
+            if m:
+                d = m.group(1)
+                date_str = f"{d[:4]}-{d[4:6]}-{d[6:8]}"
+            break
+
+    # Extract source (skill name)
+    source = "knowledge-index.md"
+    for ln in lines:
+        if '**来源**' in ln:
+            m = re.search(r'\*\*来源\*\*:\s*\[([^\]]+)\]', ln)
+            if m:
+                source = m.group(1)
+            break
 
     if summary and len(summary) > 5:
+        # 复用已有ID或生成新ID（基于category计数器）
+        nid = None
         nodes_out.append({
-            "id": nid, "label": title, "category": cat,
-            "summary": summary, "source": "knowledge-index.md",
-            "url": url, "connections": conn
+            "id": nid,  # 暂时为空，后面统一生成
+            "label": title,
+            "category": cat,
+            "summary": summary[:180].replace('"', "'"),
+            "source": source,
+            "url": url,
+            "date": date_str,
+            "connections": 0
         })
 
-# Links: keep only those between surviving nodes
-nid_set = {n["id"] for n in nodes_out}
+# 生成稳定ID（按category排序，保证顺序一致）
+from collections import OrderedDict
+cat_counters = OrderedDict()
+for n in nodes_out:
+    cat = n["category"]
+    if cat not in cat_counters:
+        cat_counters[cat] = 0
+    cat_counters[cat] += 1
+    prefix = {"朗新科技":"lx","可信数据空间":"td","充电桩":"cd","虚拟电厂":"vp","数据基础设施":"ndi"}.get(cat, "xx")
+    n["id"] = f"{prefix}-{cat_counters[cat]}"
+
+# 关系（从 ## 关联 or ### 相关 中提取，暂不实现，保持简单）
 links_out = []
-for s, t, r in existing_links:
-    if s in nid_set and t in nid_set:
-        links_out.append(f'    {{ source: "{s}", target: "{t}", relation: "{r}" }}')
 
-# ── Write data.js ────────────────────────────────────────────────────────────
+# === 生成 data.js ===
 ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-
-CATEGORY_CONFIG = """const CATEGORY_CONFIG = {
-  "朗新科技":     { "color": "#3B82F6", "emoji": "🏢" },
-  "可信数据空间": { "color": "#10B981", "emoji": "🔐" },
-  "充电桩":       { "color": "#F97316", "emoji": "⚡" },
-  "虚拟电厂":     { "color": "#EF4444", "emoji": "⚡" },
-  "数据基础设施": { "color": "#8B5CF6", "emoji": "🏛️" }
-};
-"""
-
 nodes_json = []
 for n in nodes_out:
     nodes_json.append(
-        '    {{\n      id: "{id}",\n      label: "{label}",\n      category: "{category}",\n      summary: "{summary}",\n      source: "{source}",\n      url: "{url}",\n      connections: {connections}\n    }}'.format(**n)
+        '    {{ id: "{id}", label: "{label}", category: "{cat}", summary: "{summary}", source: "{source}", url: "{url}", date: "{date}", connections: {conn} }}'.format(
+            id=n["id"],
+            label=n["label"].replace('"', '\\"'),
+            cat=n["category"],
+            summary=n["summary"],
+            source=n["source"],
+            url=n["url"],
+            date=n["date"],
+            conn=n["connections"]
+        )
     )
 
-data_js = "// Generated by sync-generator.py @ {ts}\n".format(ts=ts)
-data_js += "const KNOWLEDGE_DATA = {{\n  nodes: [\n{nodes}\n  ],\n  links: [\n{links}\n  ]\n}};\n\n{cconfig}\n".format(
-    nodes=',\n'.join(nodes_json),
-    links=',\n'.join(links_out) if links_out else '    // links maintained manually',
-    cconfig=CATEGORY_CONFIG
-)
+links_json = []
+for l in links_out:
+    links_json.append(f'    {{ source: "{l["source"]}", target: "{l["target"]}", relation: "{l["relation"]}" }}')
+
+cconfig_lines = []
+for name, cfg in CC.items():
+    if name != "default":
+        cconfig_lines.append(f'  "{name}": {{ "color": "{cfg["color"]}", "emoji": "{cfg["emoji"]}" }}')
+
+data_js = f"""// Generated by sync-generator.py @ {ts}
+// Source: {INDEX_FILE}
+const KNOWLEDGE_DATA = {{
+  nodes: [
+{nodes_json}
+  ],
+  links: [
+{links_json}
+  ]
+}};
+
+const CATEGORY_CONFIG = {{
+{','.join(cconfig_lines)}
+}};
+"""
 
 with open(DATA_FILE, "w", encoding="utf-8") as f:
     f.write(data_js)
 
-print("Generated: {0} nodes, {1} links".format(len(nodes_out), len(links_out)))
+print(f"Generated: {len(nodes_out)} nodes, {len(links_out)} links")
+print(f"Data.js size: {len(data_js)} bytes")

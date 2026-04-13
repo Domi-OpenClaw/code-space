@@ -147,8 +147,9 @@ function renderGraph(){showLoading(true);
   const H=document.getElementById('graph-view').clientHeight||600;
   const nodes=fn(),links=fl(nodes);
   if(!nodes.length){svg.selectAll('*').remove();svg.append('text').attr('x',W/2).attr('y',H/2).attr('text-anchor','middle').attr('fill','#94a3b8').attr('font-size',14).text('没有找到匹配的知识点');return;}
-  const nc=nodes.map(n=>({...n})),lc=links.map(l=>({...l}));
+  const nc=nodes.slice(0,50).map(n=>({...n})),lc=links.map(l=>({...l}));
   nc.forEach(n=>{n.x=W/2+(Math.random()-.5)*W*.8;n.y=H/2+(Math.random()-.5)*H*.8;});
+  if(nodes.length>50){svg.append("text").attr("x",W/2).attr("y",H-20).attr("text-anchor","middle").attr("fill","#94a3b8").attr("font-size",12).text(`显示前50个节点（共${nodes.length}个），请使用列表视图查看全部`);}
   svg.selectAll('*').remove();
   settling=true;svg.attr('viewBox',`0 0 ${W} ${H}`);
   const zoom=d3.zoom().scaleExtent([.1,5]).on('zoom',e=>g.attr('transform',e.transform));

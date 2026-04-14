@@ -101,7 +101,7 @@
 </div>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-const D=KNOWLEDGE_DATA;
+let D={nodes:[]},KNOWLEDGE_DATA=null;
 const CC={"朗新科技":{"color":"#3B82F6","emoji":"🏢"},"可信数据空间":{"color":"#10B981","emoji":"🔐"},"充电桩":{"color":"#F97316","emoji":"⚡"},"虚拟电厂":{"color":"#EF4444","emoji":"⚡"},"数据基础设施":{"color":"#8B5CF6","emoji":"🏛️"}};
 let ct='全部',cv='graph',sq='',sim=null;
 

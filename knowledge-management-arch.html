@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: "WenQuanYi Micro Hei", "Microsoft YaHei", sans-serif; background: #fff; }
+.container { width: 1100px; min-height: 1550px; position: relative; background: #fff; }
+
+.layer {
+  position: relative;
+  margin: 15px;
+  border: 2px solid #6495ED;
+  border-radius: 8px;
+  background: #EBF5FF;
+}
+.layer-header {
+  background: #6495ED;
+  color: white;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 6px 6px 0 0;
+  position: sticky; left: 0;
+}
+.layer-body {
+  padding: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.node {
+  background: #F5FAFF;
+  border: 1.5px solid #4682B4;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: #333;
+  text-align: center;
+  line-height: 1.4;
+  min-width: 100px;
+  max-width: 200px;
+}
+.node.diamond {
+  background: #FFFAF0;
+  border-color: #C89632;
+  transform: rotate(0deg);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  padding: 20px 15px;
+  min-width: 120px;
+}
+.node.cylinder {
+  background: linear-gradient(to bottom, #E8F4FF 0%, #E8F4FF 30%, #E8F4FF 70%, #E8F4FF 100%);
+  border-color: #5070A0;
+  border-radius: 8px 8px 12px 12px;
+  min-width: 140px;
+}
+.node .title { font-weight: bold; font-size: 12px; }
+.node .sub { font-size: 10px; color: #666; margin-top: 2px; }
+
+.layer-km { min-height: 290px; }
+.layer-kb { min-height: 155px; }
+.layer-fb { min-height: 155px; }
+
+svg { position: absolute; top: 0; left: 0; width: 1100px; height: 1550px; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="container">
+<svg id="arrows"></svg>
+
+<!-- Skill层 -->
+<div class="layer" style="height: 95px">
+  <div class="layer-header">Skill层（微观层）</div>
+  <div class="layer-body">
+    <div class="node" style="margin: auto; min-width: 280px;">
+      <div class="title">单个Skill</div>
+      <div class="sub">信息采集→分析经验→预判→实施→总结归纳</div>
+    </div>
+  </div>
+</div>
+
+<!-- 运维层 -->
+<div class="layer" style="height: 95px">
+  <div class="layer-header">运维层（每日晚间任务）</div>
+  <div class="layer-body">
+    <div class="node">
+      <div class="title">排查任务执行情况</div>
+    </div>
+    <div class="node">
+      <div class="title">故障分析</div>
+    </div>
+  </div>
+</div>
+
+<!-- 知识管理层 -->
+<div class="layer layer-km">
+  <div class="layer-header">知识管理层（全局层）</div>
+  <div class="layer-body">
+    <div class="node">
+      <div class="title">采集Skill报告的数据</div>
+    </div>
+    <div class="node">
+      <div class="title">清洗数据</div>
+    </div>
+    <div class="node">
+      <div class="title">归纳经验</div>
+    </div>
+    <div class="node">
+      <div class="title">归档到知识库</div>
+    </div>
+    <div class="node">
+      <div class="title">维护知识点与决策片段的关联</div>
+    </div>
+    <div class="node">
+      <div class="title">评估success_rate<br>更新决策片段</div>
+    </div>
+    <div class="node">
+      <div class="title">管理知识点属性<br>（多场景决策片段）</div>
+    </div>
+  </div>
+</div>
+
+<!-- 知识库 -->
+<div class="layer layer-kb">
+  <div class="layer-header">知识库</div>
+  <div class="layer-body">
+    <div class="node cylinder">
+      <div class="title">知识点（节点）</div>
+      <div class="sub">描述信息 + 关联关系</div>
+    </div>
+    <div class="node">
+      <div class="title">决策片段</div>
+      <div class="sub">when-do-success_rate<br>按场景挂载在知识点下</div>
+    </div>
+  </div>
+</div>
+
+<!-- 反馈闭环 -->
+<div class="layer layer-fb">
+  <div class="layer-header">反馈闭环</div>
+  <div class="layer-body">
+    <div class="node">
+      <div class="title">Skill执行<br>报结果到知识管理层</div>
+    </div>
+    <div class="node">
+      <div class="title">更新success_rate</div>
+    </div>
+    <div class="node diamond">
+      <div class="title">success_rate持续低<br>→触发重新审视</div>
+    </div>
+    <div class="node">
+      <div class="title">决定：保留/修改/废弃</div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>

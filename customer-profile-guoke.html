@@ -11,8 +11,8 @@
   h2 { font-size: 1.2rem; color: #202124; margin: 1.5rem 0 0.8rem; padding-left: 0.5rem; border-left: 4px solid #1a73e8; }
   h3 { font-size: 1rem; color: #5f6368; margin: 1rem 0 0.5rem; }
   .card { background: white; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .tag { display: inline-block; background: #e8f0fe; color: #1967d2; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; margin: 2px; }
-  .tag.dark { background: #1a73e8; color: white; }
+  .highlight { background: linear-gradient(135deg, #e8f0fe, #cfe2ff); border-left: 4px solid #1a73e8; padding: 1rem 1.25rem; border-radius: 0 10px 10px 0; margin: 0.8rem 0; }
+  .highlight p { font-size: 0.92rem; line-height: 1.7; }
   table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
   th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #eee; }
   th { color: #5f6368; font-weight: 500; font-size: 0.85rem; width: 100px; }
@@ -28,6 +28,12 @@
   .purpose-box h2 { color: white; border-left-color: rgba(255,255,255,0.5); margin-top: 0; }
   .purpose-box p { font-size: 0.95rem; line-height: 1.7; }
   .meta { text-align: right; font-size: 0.8rem; color: #9aa0a6; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
+  .tag-row { margin-top: 0.5rem; }
+  .tag { display: inline-block; background: #e8f0fe; color: #1967d2; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; margin: 2px; }
+  .tag.dark { background: #1a73e8; color: white; }
+  .tag.green { background: #e6f4ea; color: #137333; }
+  .tag.orange { background: #fef7e0; color: #b06000; }
+  .source { font-size: 0.8rem; color: #9aa0a6; font-style: italic; margin-top: 0.3rem; }
 </style>
 </head>
 <body>
@@ -35,7 +41,7 @@
 <h1>📋 客户拜访材料 — 国客（国家电网客户服务中心）</h1>
 <div class="header-info">
   <span>📅 拜访日期：待填写</span>
-  <span>👤 对接人：董蓓（网上国网运营中心系统部主任）</span>
+  <span>👤 对接人：董蓓</span>
   <span>🎯 拜访目的：推动国客建设企业可信数据空间</span>
 </div>
 
@@ -68,13 +74,34 @@
   <tr><th>核心困境</th><td>① 数据资产如何合规变现（合规路径不清晰）<br>② 对外供数缺乏安全基础设施（无可信数据空间）<br>③ 创新业务立项难（传统财务核算体系 vs 创新投入不确定性）</td></tr>
   <tr><th>障碍排序</th><td>合规路径（最核心） > 技术方案（次之） > 内部立项（再次）</td></tr>
 </table>
+</div>
 
-<h3>对接人分析</h3>
+<div class="card">
+<h2>👤 对接人分析</h2>
+
+<div class="highlight">
+  <p><strong>董蓓</strong> — 网上国网运营中心系统部主任（当前）</p>
+  <p class="source">信息源自：百度AI搜索 · 百家号2021年报道 + 搜狐网2019年学术论文</p>
+</div>
+
 <table>
-  <tr><th>对接人</th><td>董蓓，网上国网运营中心系统部主任</td></tr>
+  <tr><th>职务轨迹</th><td>
+    <span class="tag-row">
+      <span class="tag">2019年：工程师（合著柔性负荷调度论文）</span>
+      <span class="tag">2021年：网上国网·公共服务产品线·产品经理</span>
+      <span class="tag dark">当前：网上国网运营中心·系统部主任</span>
+    </span>
+  </td></tr>
+  <tr><th>职业背景</th><td>一直在国网客服中心体系内成长，属于内部培养的技术管理干部，非外部空降</td></tr>
+  <tr><th>专业能力</th><td>产品设计（主导网上国网App"关怀模式"适老化改造，2021年）+ 技术研发（柔性负荷优化调度，2019年）</td></tr>
   <tr><th>关注点</th><td>数据业务的技术架构可行性、合规性、对外合作的商业模式</td></tr>
-  <tr><th>沟通切入点</th><td>① 网上国网已有数据资源如何用起来<br>② 国数局政策压力下的合规路径<br>③ 行业可信数据空间与国客企业数据空间的层级关系（她需要搞清楚这个架构）</td></tr>
+  <tr><th>沟通切入点</th><td>① 从产品经理到系统部主任，视角从功能设计扩展到系统架构，关注数据如何真正产生价值<br>② 网上国网已有数据资源如何用起来<br>③ 国数局政策压力下的合规路径</td></tr>
+  <tr><th>信任建立</th><td>在国客体系深耕多年，是内部成长起来的技术管理者——务实、懂产品、有技术背景，更看重可落地的方案</td></tr>
 </table>
+
+<div class="highlight" style="background: linear-gradient(135deg, #e6f4ea, #d3efd9); border-left-color: #137333;">
+  <p><strong>💡 沟通温度建议：</strong>提到"关注到您之前负责过网上国网的适老化改造，这是很有温度的产品方向"——建立亲和感，同时展现对她的职业关注</p>
+</div>
 </div>
 
 <div class="card">
@@ -83,7 +110,7 @@
 <table>
   <tr><th>政策施压</th><td>国数局《可信数据空间发展行动计划》要求行业龙头建设行业数据空间，国客作为国网数字化窗口，有责任率先探索</td></tr>
   <tr><th>公司痛点解药</th><td>数据资产"不敢外供" → 可信数据空间提供合规技术底座<br>"不会运营" → 朗新有成熟的数据运营经验可复制</td></tr>
-  <tr><th>对接人价值绑定</th><td>帮助国客建立行业标杆地位，数据空间建成后可对外输出方法论，形成行业影响力</td></tr>
+  <tr><th>对接人价值绑定</th><td>帮助国客建立行业标杆地位，数据空间建成后可对外输出方法论，形成行业影响力——这也是系统部主任的政绩亮点</td></tr>
 </table>
 </div>
 
@@ -104,7 +131,7 @@
 </ul>
 
 <h3>5个关键问答</h3>
-<div class="qa"><strong>Q1: "你们认为国客建企业数据空间，对自身有什么价值？"</strong><br>→ 探询真实动机，了解对方是主动想建还是被动响应</div>
+<div class="qa"><strong>Q1: "您认为国客建企业数据空间，对自身有什么价值？"</strong><br>→ 探询真实动机，了解是主动想建还是被动响应政策</div>
 <div class="qa"><strong>Q2: "国客目前在数据方面有哪些资源？有哪些数据想对外提供？"</strong><br>→ 探询供数意愿和家底，摸清可运营的数据资产清单</div>
 <div class="qa"><strong>Q3: "数据对外提供，最担心的问题是什么？"</strong><br>→ 探询核心顾虑（合规/安全/收益/责任），精准对应解药</div>
 <div class="qa"><strong>Q4: "国数局最近对你们有没有具体的政策要求或考核压力？"</strong><br>→ 政策施压切入点，看有没有来自上面的硬性推动力</div>
@@ -123,7 +150,7 @@
 </div>
 
 <div class="meta">
-生成时间：2026-04-14 · 来自 Domi AI 助手 · 依据 bidding-workflow bd__customer_visit 工具生成
+更新：2026-04-14 18:15 · 来自 Domi AI 助手 · 依据 bidding-workflow bd__customer_visit 工具生成
 </div>
 
 </body>

@@ -135,11 +135,10 @@ ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 nodes_json = []
 for n in nodes_out:
     nodes_json.append(
-        '    {{ id: "{id}", label: "{label}", category: "{cat}", summary: "{summary}", source: "{source}", url: "{url}", date: "{date}", connections: {conn} }}'.format(
+        '    {{ id: "{id}", label: "{label}", category: "{cat}", source: "{source}", url: "{url}", date: "{date}", connections: {conn} }}'.format(
             id=n["id"],
             label=n["label"].replace('"', '\\"'),
             cat=n["category"],
-            summary=n["summary"],
             source=n["source"],
             url=n["url"],
             date=n["date"],
@@ -171,6 +170,16 @@ const CATEGORY_CONFIG = {{
 {','.join(cconfig_lines)}
 }};
 """
+
+# Also generate summaries.js (full summary content for lazy loading)
+summaries_js = "const SUMMARIES = {\n"
+for n in nodes_out:
+    s = n["summary"].replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")
+    summaries_js += f'  "{n["id"]}": "{s}",\n'
+summaries_js += "};"
+summaries_file = DATA_FILE.replace("data.js", "summaries.js")
+with open(summaries_file, "w", encoding="utf-8") as f:
+    f.write(summaries_js)
 
 with open(DATA_FILE, "w", encoding="utf-8") as f:
     f.write(data_js)

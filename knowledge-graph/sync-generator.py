@@ -102,6 +102,16 @@ for title, lines in blocks:
                 source = m.group(1)
             break
 
+    # Extract success_rate
+    success_rate = None
+    for ln in lines:
+        if '**success_rate**' in ln:
+            m = re.search(r'\*\*success_rate\*\*:\s*(\S+)', ln)
+            if m:
+                v = m.group(1)
+                success_rate = None if v == 'null' else float(v)
+            break
+
     if summary and len(summary) > 5:
         # 复用已有ID或生成新ID（基于category计数器）
         nid = None
@@ -113,7 +123,8 @@ for title, lines in blocks:
             "source": source,
             "url": url,
             "date": date_str,
-            "connections": 0
+            "connections": 0,
+            "success_rate": success_rate
         })
 
 # 生成稳定ID（按category排序，保证顺序一致）
@@ -134,15 +145,17 @@ links_out = []
 ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 nodes_json = []
 for n in nodes_out:
+    sr = n["success_rate"] if n["success_rate"] is not None else "null"
     nodes_json.append(
-        '    {{ id: "{id}", label: "{label}", category: "{cat}", source: "{source}", url: "{url}", date: "{date}", connections: {conn} }}'.format(
+        '    {{ id: "{id}", label: "{label}", category: "{cat}", source: "{source}", url: "{url}", date: "{date}", connections: {conn}, success_rate: {sr} }}'.format(
             id=n["id"],
             label=n["label"].replace('"', '\\"'),
             cat=n["category"],
             source=n["source"],
             url=n["url"],
             date=n["date"],
-            conn=n["connections"]
+            conn=n["connections"],
+            sr=sr
         )
     )
 

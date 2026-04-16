@@ -92,7 +92,7 @@ for n in nodes_out:
     sr = "null" if n["success_rate"] is None else n["success_rate"]
     nodes_lines.append(
         '    {{ id: "{id}", label: "{label}", category: "{cat}", source: "{src}", '
-        'url: "{url}", date: "{date}", connections: 0, success_rate: {sr} }}'.format(
+        'url: "{url}", date: "{date}", connections: 0, success_rate: {sr} }},'.format(
             id=n["id"],
             label=n["label"].replace('"', '\\"'),
             cat=n["category"],

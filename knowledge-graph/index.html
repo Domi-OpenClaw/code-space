@@ -114,12 +114,22 @@
 //  No D3, no Sigma, no external libs
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CC = {
+const THEME_CONFIG = {
   '朗新科技':     { color: '#3B82F6', emoji: '🏢' },
   '可信数据空间': { color: '#10B981', emoji: '🔐' },
   '充电桩':       { color: '#F97316', emoji: '⚡' },
   '虚拟电厂':     { color: '#EF4444', emoji: '🔋' },
   '数据基础设施': { color: '#8B5CF6', emoji: '🏛️' },
+};
+
+const TAG_CONFIG = {
+  '数据基础设施': { color: '#8B5CF6', emoji: '🏛️' },
+  '政策':         { color: '#3B82F6', emoji: '📋' },
+  '市场':         { color: '#10B981', emoji: '📈' },
+  '政府':         { color: '#EF4444', emoji: '🏛️' },
+  '金融':         { color: '#F59E0B', emoji: '💰' },
+  '招标':         { color: '#EC4899', emoji: '📢' },
+  '能源':         { color: '#F97316', emoji: '⚡' },
 };
 
 // ── State ──────────────────────────────────────────────────────────────────
@@ -159,7 +169,7 @@ function loadData(cb) {
 
 function getNodes() {
   return D.nodes.filter(n => {
-    const okTab = activeTab === '全部' || n.category === activeTab;
+    const okTab = activeTab === '全部' || n.theme === activeTab;
     const okQ   = !searchQ || n.label.toLowerCase().includes(searchQ) || (n.summary || '').toLowerCase().includes(searchQ);
     return okTab && okQ;
   });
@@ -193,7 +203,7 @@ function initSimulation() {
       vx: 0, vy: 0,
       fx: null, fy: null,
       r: Math.min(6 + (n.quality || 0) * 0.1, 14),
-      color: (CC[n.category] || { color: '#6B7280' }).color,
+      color: (THEME_CONFIG[n.theme] || { color: '#6B7280' }).color,
       label: n.label,
       node: n,
     };
@@ -476,10 +486,10 @@ function onTouchEnd(e) {
 
 // ── Render UI ───────────────────────────────────────────────────────────────
 function renderTabs() {
-  const cats = ['全部', ...Object.keys(CC).filter(c => D.nodes.some(n => n.category === c))];
+  const cats = ['全部', ...Object.keys(THEME_CONFIG).filter(c => D.nodes.some(n => n.theme === c))];
   const cnt = {};
   cats.forEach(c => {
-    cnt[c] = c === '全部' ? D.nodes.length : D.nodes.filter(n => n.category === c).length;
+    cnt[c] = c === '全部' ? D.nodes.length : D.nodes.filter(n => n.theme === c).length;
   });
   document.getElementById('tabs').innerHTML = cats.map(c =>
     `<button class="tab ${c === activeTab ? 'active' : ''}" onclick="setTab('${c}')">` +
@@ -503,7 +513,7 @@ function renderList() {
     return;
   }
   grid.innerHTML = nodes.map(n => {
-    const cfg = CC[n.category] || { color: '#6B7280', emoji: '📄' };
+    const cfg = THEME_CONFIG[n.theme] || { color: '#6B7280', emoji: '📄' };
     return `<div class="card" onclick="showDetailById('${n.id}')">
       <div class="card-header">
         <div class="card-title">${hl(n.label, searchQ)}</div>
@@ -521,12 +531,12 @@ function renderList() {
 // ── Detail Panel ────────────────────────────────────────────────────────────
 function showDetail(n) {
   detailNode = n;
-  const cfg = CC[n.category] || { color: '#6B7280', emoji: '📄' };
+  const cfg = THEME_CONFIG[n.theme] || { color: '#6B7280', emoji: '📄' };
   document.getElementById('detail-title').textContent = n.label;
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-section">
       <div class="detail-label">分类</div>
-      <span class="detail-cat" style="background:${cfg.color}">${cfg.emoji} ${n.category}</span>
+      <span class="detail-cat" style="background:${(THEME_CONFIG[n.theme]||{color:'#6B7280'}).color}">${(THEME_CONFIG[n.theme]||{emoji:'🏛️'}).emoji} ${n.theme}</span>&nbsp;<span class="detail-cat" style="background:${(TAG_CONFIG[n.tag_category]||{color:'#475569'}).color}">${(TAG_CONFIG[n.tag_category]||{emoji:'📂'}).emoji} ${n.tag_category}</span>
     </div>
     <div class="detail-section">
       <div class="detail-label">摘要</div>

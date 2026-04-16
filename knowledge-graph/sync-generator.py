@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-知识图谱 data.js 生成器 v7
-从 TinyDB 读取知识节点 → data.js
-修复: summary 字段正确写入 data.js 节点
-按 tag 分类：政策/市场/政府/金融/招标/能源/数据基础设施
+知识图谱 data.js 生成器 v8
+- 质量分 <40 的条目直接跳过
+- topics 字段（5主题分类）作为 Tab 分类输出
+- 保留原始 tag 分类（政策/市场/…）作为 detail panel 属性
 """
 
 import sys
 import datetime
-
-# TinyDB via skill-image-gen venv
 sys.path.insert(0, "/home/admin/.openclaw/skills/skill-image-gen/venv/lib/python3.11/site-packages")
 from tinydb import TinyDB
 
@@ -18,8 +16,24 @@ DB_PATH  = "/home/admin/.openclaw/workspace/knowledge/db/knowledge-index.json"
 DATA_DIR = "/home/admin/.openclaw/workspace/code-space/knowledge-graph"
 DATA_FILE = f"{DATA_DIR}/data.js"
 
-# 分类配置（按 tag 体系）
-CC = {
+# 5主题分类（Tab视图）
+THEME_CC = {
+    "数据基础设施": { "color": "#8B5CF6", "emoji": "🏛️" },  # 默认/泛行业
+    "可信数据空间": { "color": "#10B981", "emoji": "🔐" },
+    "充电桩":       { "color": "#F97316", "emoji": "⚡" },
+    "虚拟电厂":     { "color": "#EF4444", "emoji": "🔋" },
+    "朗新科技":     { "color": "#3B82F6", "emoji": "🏢" },
+}
+THEME_PREFIX = {
+    "数据基础设施": "ndi",
+    "可信数据空间": "td",
+    "充电桩":       "cd",
+    "虚拟电厂":     "vp",
+    "朗新科技":     "lx",
+}
+
+# 原始 tag→中文分类（资讯分类，detail panel 用）
+TAG_CC = {
     "数据基础设施": { "color": "#8B5CF6", "emoji": "🏛️" },
     "政策":         { "color": "#3B82F6", "emoji": "📋" },
     "市场":         { "color": "#10B981", "emoji": "📈" },
@@ -27,21 +41,17 @@ CC = {
     "金融":         { "color": "#F59E0B", "emoji": "💰" },
     "招标":         { "color": "#EC4899", "emoji": "📢" },
     "能源":         { "color": "#F97316", "emoji": "⚡" },
-    "default":      { "color": "#6B7280", "emoji": "📄" }
 }
 
-prefix_map = {
-    "数据基础设施": "ndi",
-    "政策":        "pol",
-    "市场":        "mkt",
-    "政府":        "gov",
-    "金融":        "fin",
-    "招标":        "bid",
-    "能源":        "ene",
-}
+def get_theme_topics(record):
+    """从 topics 字段取主题，没有则默认'数据基础设施'"""
+    tops = record.get("topics") or []
+    if not tops:
+        return ["数据基础设施"]
+    return tops
 
-def get_category(record):
-    """从 tags 字段推导分类（英文tag→中文分类）"""
+def get_tag_category(record):
+    """从 tags 字段取资讯分类"""
     tags_str = record.get("tags", "") or ""
     tag_map = {
         "policy":  "政策",
@@ -57,111 +67,128 @@ def get_category(record):
             return tag_map[tag]
     return "数据基础设施"
 
-# ── 从 TinyDB 读取全部条目 ─────────────────────────────────────────────
-db   = TinyDB(DB_PATH)
-tbl  = db.table("knowledge")
+def esc(s):
+    return s.replace("\\","\\\\").replace('"','\\"').replace("\n"," ")[:200]
+
+# ── 读取 ─────────────────────────────────────────────────────────────
+db = TinyDB(DB_PATH)
+tbl = db.table("knowledge")
 all_records = tbl.all()
 db.close()
 
-# 分类计数器
-from collections import OrderedDict, Counter
-cat_counter = OrderedDict()
-
-def esc(s):
-    """JSON-safe字符串"""
-    return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")[:200]
+# ── 质量过滤 ────────────────────────────────────────────────────────
+from collections import Counter, OrderedDict
 
 nodes_out = []
-for r in all_records:
-    cat = get_category(r)
+theme_counter = OrderedDict()
+dropped = 0
 
-    summary = r.get("summary", "") or ""
-    if len(summary) < 5:
+for r in all_records:
+    q = r.get("quality_computed", 100)  # 新字段
+    if q < 40:
+        dropped += 1
         continue
 
-    # 稳定ID
-    if cat not in cat_counter:
-        cat_counter[cat] = 0
-    cat_counter[cat] += 1
-    prefix = prefix_map.get(cat, "xx")
-    nid = f"{prefix}-{cat_counter[cat]}"
+    theme = get_theme_topics(r)[0]  # 取第一个主题作为Tab分类
+    tag_cat = get_tag_category(r)
 
-    url = r.get("archive_url") or ""
+    if theme not in theme_counter:
+        theme_counter[theme] = 0
+    theme_counter[theme] += 1
+    nid = f"{THEME_PREFIX.get(theme,'xx')}-{theme_counter[theme]}"
+
     sr = r.get("success_rate")
     sr_str = "null" if sr is None else str(sr)
+    summary = r.get("summary","") or ""
+    topics = r.get("topics") or []
+    tags_str = r.get("tags","") or ""
 
     nodes_out.append({
         "id":           nid,
-        "label":        r.get("title", ""),
-        "category":     cat,
+        "label":        r.get("title",""),
+        "theme":        theme,           # 5主题 Tab 分类
+        "tag_category": tag_cat,         # 资讯分类（detail panel）
+        "topics":       topics,           # 多主题列表
         "summary":      esc(summary),
-        "source":       r.get("source", ""),
-        "url":          url,
-        "date":         r.get("source_date", ""),
-        "quality":      r.get("quality", 0),
+        "source":       r.get("source",""),
+        "url":          r.get("archive_url",""),
+        "date":         r.get("source_date",""),
+        "quality":      q,
         "success_rate": sr,
+        "tags":         tags_str,
     })
 
-# 按日期倒序
-nodes_out.sort(key=lambda x: x.get("date", ""), reverse=True)
+nodes_out.sort(key=lambda x: x.get("date",""), reverse=True)
 
-# ── 生成 data.js ──────────────────────────────────────────────────────
+# ── 生成 data.js ───────────────────────────────────────────────────
 ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
-nodes_lines = []
+node_lines = []
 for n in nodes_out:
     sr = "null" if n["success_rate"] is None else n["success_rate"]
+    topics_str = ",".join(n["topics"])
     line = (
-        '    {{ id: "{id}", label: "{label}", category: "{cat}", '
+        '    {{ id: "{id}", label: "{label}", theme: "{theme}", '
+        'tag_category: "{tag}", topics: "{topics}", '
         'source: "{src}", url: "{url}", date: "{date}", '
-        'summary: "{summary}", connections: 0, success_rate: {sr} }},'
+        'summary: "{summary}", quality: {q}, connections: 0, success_rate: {sr} }},'
     ).format(
         id=n["id"],
         label=esc(n["label"]),
-        cat=n["category"],
+        theme=n["theme"],
+        tag=n["tag_category"],
+        topics=topics_str,
         src=n["source"],
         url=n["url"],
         date=n["date"],
         summary=n["summary"],
-        sr=sr
+        q=n["quality"],
+        sr=sr,
     )
-    nodes_lines.append(line)
+    node_lines.append(line)
 
-links_lines = []  # 暂不实现关联关系
-
-cc_lines = []
-for name, cfg in CC.items():
-    if name != "default":
-        cc_lines.append('  "{name}": {{ "color": "{color}", "emoji": "{emoji}" }}'.format(
+theme_cfg_lines = []
+for name, cfg in THEME_CC.items():
+    theme_cfg_lines.append(
+        '  "{name}": {{ "color": "{color}", "emoji": "{emoji}" }}'.format(
             name=name, color=cfg["color"], emoji=cfg["emoji"]
         ))
 
-data_js = """// Generated by sync-generator.py v7 @ {ts}
-// Source: TinyDB
+tag_cfg_lines = []
+for name, cfg in TAG_CC.items():
+    tag_cfg_lines.append(
+        '  "{name}": {{ "color": "{color}", "emoji": "{emoji}" }}'.format(
+            name=name, color=cfg["color"], emoji=cfg["emoji"]
+        ))
+
+data_js = """// Generated by sync-generator.py v8 @ {ts}
+// 5主题Tab视图 + 资讯tag双轨分类
 const KNOWLEDGE_DATA = {{
   nodes: [
 {node_lines}
-  ],
-  links: [
   ]
 }};
 
-const CATEGORY_CONFIG = {{
-{cc_cfg}
+const THEME_CONFIG = {{
+{theme_cfg}
+}};
+
+const TAG_CONFIG = {{
+{tag_cfg}
 }};
 """.format(
     ts=ts,
-    node_lines="\n".join(nodes_lines),
-    cc_cfg=",\n".join(cc_lines)
+    node_lines="\n".join(node_lines),
+    theme_cfg=",\n".join(theme_cfg_lines),
+    tag_cfg=",\n".join(tag_cfg_lines),
 )
 
 with open(DATA_FILE, "w", encoding="utf-8") as f:
     f.write(data_js)
 
-# ── 统计 ──────────────────────────────────────────────────────────────
-cat_counts = Counter(n["category"] for n in nodes_out)
 print(f"✅ 生成完成")
-print(f"   总节点: {len(nodes_out)}")
-for cat, cnt in sorted(cat_counts.items(), key=lambda x: -x[1]):
-    print(f"   {cat}: {cnt}")
+print(f"   入库: {len(nodes_out)} 条（丢弃 {dropped} 条）")
+print(f"   主题分布:")
+for t, cnt in theme_counter.items():
+    print(f"     {t}: {cnt}")
 print(f"   data.js: {len(data_js)} bytes")

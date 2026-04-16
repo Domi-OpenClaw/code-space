@@ -43,13 +43,6 @@ TAG_CC = {
     "能源":         { "color": "#F97316", "emoji": "⚡" },
 }
 
-def get_theme_topics(record):
-    """从 topics 字段取主题，没有则默认'数据基础设施'"""
-    tops = record.get("topics") or []
-    if not tops:
-        return ["数据基础设施"]
-    return tops
-
 def get_tag_category(record):
     """从 tags 字段取资讯分类"""
     tags_str = record.get("tags", "") or ""
@@ -85,11 +78,17 @@ dropped = 0
 
 for r in all_records:
     q = r.get("quality_computed", 100)  # 新字段
-    if q < 40:
+    if q < 85:
         dropped += 1
         continue
 
-    theme = get_theme_topics(r)[0]  # 取第一个主题作为Tab分类
+    raw_topics = r.get("topics") or []
+    # 无特定主题（data-market-insight 兜底条目）不入图谱
+    if not raw_topics:
+        dropped += 1
+        continue
+
+    theme = raw_topics[0]  # 取第一个主题作为Tab分类
     tag_cat = get_tag_category(r)
 
     if theme not in theme_counter:

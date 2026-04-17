@@ -154,7 +154,7 @@ let nodeUnderMouse = null;
 // ── Helpers ────────────────────────────────────────────────────────────────
 function loadData(cb) {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'data.js?t=' + Date.now(), true);
+  xhr.open('GET', 'https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-graph/data.js?t=' + Date.now(), true);
   xhr.onload = function () {
     if (xhr.status === 200) {
       try {

@@ -9,7 +9,6 @@
 
 import sys
 import datetime
-sys.path.insert(0, "/home/admin/.openclaw/skills/skill-image-gen/venv/lib/python3.11/site-packages")
 from tinydb import TinyDB
 
 DB_PATH  = "/home/admin/.openclaw/workspace/knowledge/db/knowledge-index.json"
@@ -45,7 +44,12 @@ TAG_CC = {
 
 def get_tag_category(record):
     """从 tags 字段取资讯分类"""
-    tags_str = record.get("tags", "") or ""
+    tags_raw = record.get("tags", "") or ""
+    # 兼容 list 或 string 两种格式
+    if isinstance(tags_raw, list):
+        tags_str = ",".join(str(t) for t in tags_raw)
+    else:
+        tags_str = str(tags_raw)
     tag_map = {
         "policy":  "政策",
         "market":  "市场",
@@ -64,10 +68,13 @@ def esc(s):
     return s.replace("\\","\\\\").replace('"','\\"').replace("\n"," ")[:200]
 
 # ── 读取 ─────────────────────────────────────────────────────────────
-db = TinyDB(DB_PATH)
-tbl = db.table("knowledge")
-all_records = tbl.all()
-db.close()
+# TinyDB expects int doc_ids but our JSON uses string ids ('lx-xxx'),
+# so we read the JSON directly to bypass TinyDB's document_id_class validation.
+import json as _json
+with open(DB_PATH) as _f:
+    _raw = _json.load(_f)
+_all_records_raw = _raw.get("knowledge", _raw)
+all_records = list(_all_records_raw.values())
 
 # ── 质量过滤 ────────────────────────────────────────────────────────
 from collections import Counter, OrderedDict
@@ -100,7 +107,11 @@ for r in all_records:
     sr_str = "null" if sr is None else str(sr)
     summary = r.get("summary","") or ""
     topics = r.get("topics") or []
-    tags_str = r.get("tags","") or ""
+    tags_raw = r.get("tags", "") or ""
+    if isinstance(tags_raw, list):
+        tags_str = ",".join(str(t) for t in tags_raw)
+    else:
+        tags_str = str(tags_raw)
 
     nodes_out.append({
         "id":           nid,

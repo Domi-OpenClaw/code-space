@@ -154,7 +154,7 @@ let nodeUnderMouse = null;
 // ── Helpers ────────────────────────────────────────────────────────────────
 function loadData(cb) {
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://cdn.jsdelivr.net/gh/Domi-OpenClaw/code-space@main/knowledge-graph/data.js?t=' + Date.now(), true);
+  xhr.open('GET', 'data.js?t=' + Date.now(), true);
   xhr.onload = function () {
     if (xhr.status === 200) {
       try {
@@ -634,5 +634,27 @@ loadData(function (data) {
   setTimeout(() => setProgress(0), 400);
 });
 </script>
+
+<script>
+(function(){
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET','data.js?t='+Date.now(),true);
+  xhr.onload=function(){
+    if(xhr.status===200){
+      eval(xhr.responseText);
+      if(typeof KNOWLEDGE_DATA!=='undefined'){
+        D=KNOWLEDGE_DATA;
+        if(typeof CATEGORY_CONFIG!=='undefined'){
+          Object.keys(CATEGORY_CONFIG).forEach(function(k){CC[k]=CATEGORY_CONFIG[k];});
+        }
+        init();
+      }
+    }
+  };
+  xhr.onerror=function(){init();};
+  xhr.send();
+})();
+</script>
+
 </body>
 </html>

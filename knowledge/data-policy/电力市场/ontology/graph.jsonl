@@ -1,0 +1,54 @@
+{"op": "create", "entity": {"id": "province_sd", "type": "Province", "properties": {"name": "山东省"}}}
+{"op": "create", "entity": {"id": "province_bj", "type": "Province", "properties": {"name": "北京市"}}}
+{"op": "create", "entity": {"id": "province_hlj", "type": "Province", "properties": {"name": "黑龙江省"}}}
+{"op": "create", "entity": {"id": "vppsd", "type": "ProvinceVPP", "properties": {"province": "山东省", "subject": "虚拟电厂", "classification": ["分布式发电类（#1机）", "储能类", "全电量负荷类（#2F机）", "调节量负荷类（#2R机）"], "status": "confirmed", "coreBenefit": ["无中长期强制签约比例", "无偏差考核", "储能类节点电价结算", "现货100%参与", "辅助服务多市场同时参与", "容量补偿（仅储能类）"], "policyDocuments": ["鲁监能市场规〔2025〕57号", "鲁监能市场规〔2024〕24号", "《山东省虚拟电厂建设运行管理办法（征求意见稿）》2026.03"], "marketType": ["现货日前市场（报量报价）", "中长期交易", "辅助服务（调频/备用/调峰）", "容量补偿（仅储能类）"], "notes": "分布式发电类单体容量门槛≥0.5MW；储能类持续放电≥2h；储能类结算用节点电价，负荷类暂用统一结算点电价"}, "created": "2026-03-24"}}
+{"op": "create", "entity": {"id": "vpphlj", "type": "ProvinceVPP", "properties": {"province": "黑龙江省", "subject": "独立储能", "classification": ["单一主体类型（独立储能）"], "status": "confirmed", "coreBenefit": ["配建储能可转为独立储能", "2027年目标600万千瓦", "寒地特色技术路线（钠离子/飞轮混合）"], "policyDocuments": ["黑龙江电力市场运营规则（1+6规则体系，2025.12.30）", "《黑龙江省新型储能规模化建设专项实施方案（2025-2027年）》黑发改新能源〔2025〕990号"], "marketType": ["现货市场（日前/实时）", "中长期交易", "辅助服务（调频/调峰/备用）"], "notes": "额定功率≥5MW，持续充放电≥1h；2026年建设清单16个项目1675MW/6117.2MWh"}, "created": "2026-03-25"}}
+{"op": "create", "entity": {"id": "vppbj", "type": "ProvinceVPP", "properties": {"province": "北京市", "subject": "虚拟电厂", "classification": ["建议分4类：电源类/负荷类/储能类/混合类（待官方核实）"], "status": "partial", "coreBenefit": ["华北区域跨省调度价值", "多层级市场参与渠道（北京+华北区域）"], "policyDocuments": ["华北能源监管局相关规则（具体文号待核实）", "北京市发改委文件（待核实）"], "marketType": ["需求响应", "华北区域调峰市场", "省内辅助服务（建议，待核实）"], "notes": "⚠️ 调研草稿·仅供参考：北京VPP专项政策尚未完全落地，分类方式/准入门槛/结算规则均为行业通行值+参考华北区域；决策前须核实官方文件", "dataType": "research-draft"}, "created": "2026-03-25"}}
+{"op": "create", "entity": {"id": "repsd_vpp", "type": "ReportFile", "properties": {"filename": "山东省虚拟电厂规则解析报告_20260324.md", "path": "memory/reports/山东省虚拟电厂规则解析报告_20260324.md", "size": "43KB", "lines": 674, "created": "2026-03-24", "province": "山东省", "subject": "虚拟电厂"}}}
+{"op": "create", "entity": {"id": "rephlj_stovpp", "type": "ReportFile", "properties": {"filename": "黑龙江省独立储能规则解析报告_20260325.md", "path": "memory/reports/黑龙江省独立储能规则解析报告_20260325.md", "size": "28KB", "lines": 507, "created": "2026-03-25", "province": "黑龙江省", "subject": "独立储能"}}}
+{"op": "create", "entity": {"id": "repBJ_vpp", "type": "ReportFile", "properties": {"filename": "北京市虚拟电厂分析报告.md", "path": "~/.openclaw/kb/reports/北京市虚拟电厂分析报告.md", "size": "44KB", "lines": 950, "created": "2026-03-25", "province": "北京市", "subject": "虚拟电厂", "status": "partial", "数据性质": "调研草稿·仅供参考"}}}
+{"op": "relate", "from": "province_sd", "rel": "has_vpp_entity", "to": "vppsd"}
+{"op": "relate", "from": "province_hlj", "rel": "has_vpp_entity", "to": "vpphlj"}
+{"op": "relate", "from": "province_bj", "rel": "has_vpp_entity", "to": "vppbj"}
+{"op": "relate", "from": "vppsd", "rel": "report_located_at", "to": "repsd_vpp"}
+{"op": "relate", "from": "vpphlj", "rel": "report_located_at", "to": "rephlj_stovpp"}
+{"op": "relate", "from": "vppbj", "rel": "report_located_at", "to": "repBJ_vpp"}
+{"op": "relate", "from": "vppsd", "rel": "same_subject", "to": "vpphlj"}
+{"op": "create", "entity": {"id": "vppsd_sto", "type": "ProvinceVPP", "properties": {"province": "山东省", "subject": "独立储能", "classification": ["单一主体类型（独立储能）"], "status": "confirmed", "coreBenefit": ["无中长期强制签约", "无偏差考核", "节点电价结算", "充电免输配电费", "长时储能容量补偿翻倍", "多元收益结构"], "policyDocuments": ["鲁监能市场规〔2025〕57号", "鲁监能市场规〔2024〕24号", "鲁发改能源〔2026〕160号", "鲁发改价格〔2025〕576号"], "marketType": ["现货电能量市场（报量报价）", "中长期交易", "调频辅助服务", "爬坡辅助服务", "容量补偿"], "notes": "独立储能≠VPP子类；准入：充放电功率≥5MW+持续≥2h；无长期签约强制；K值考核替代偏差考核"}, "created": "2026-03-27"}}
+{"op": "create", "entity": {"id": "repsd_sto", "type": "ReportFile", "properties": {"filename": "山东省独立储能规则解析报告_20260327.md", "path": "~/.openclaw/kb/reports/山东省独立储能规则解析报告_20260327.md", "size": "42KB", "lines": 658, "created": "2026-03-27", "province": "山东省", "subject": "独立储能"}}}
+{"op": "relate", "from": "province_sd", "rel": "has_vpp_entity", "to": "vppsd_sto"}
+{"op": "relate", "from": "vppsd_sto", "rel": "report_located_at", "to": "repsd_sto"}
+{"op": "relate", "from": "vppsd_sto", "rel": "same_subject", "to": "vpphlj"}
+{"op": "create", "entity": {"id": "repsd_ptr", "type": "ReportFile", "properties": {"filename": "山东省电力交易规则分析报告_20260327.md", "path": "~/.openclaw/kb/reports/山东省电力交易规则分析报告_20260327.md", "size": "78KB", "lines": 1486, "created": "2026-03-27", "province": "山东省", "subject": "电力交易规则", "reportType": "交易规则分析报告", "version": "V2.0（完整参数版）", "参照标准": "V13.0"}}}
+{"op": "relate", "from": "province_sd", "rel": "has_trading_report", "to": "repsd_ptr"}
+{"op": "create", "entity": {"id": "province_sx", "type": "Province", "properties": {"name": "山西省"}}}
+{"op": "create", "entity": {"id": "ptrsx", "type": "ProvinceVPP", "properties": {"province": "山西省", "subject": "电力交易规则", "classification": ["差价合约机制", "新能源报量不报价"], "status": "partial", "coreBenefit": ["2023年12月全国首个省级现货正式运行", "±2%偏差免责+8种免责情形", "新能源机制电价竞价0.2-0.332元/kWh", "价格联动套餐创新机制"], "policyDocuments": ["晋能源电力发〔2025〕244号", "晋发改商品发〔2025〕322号"], "notes": "⚠️ 部分参数待核实：输配电价/辅助服务具体补偿标准/分时电价系数/市场运行规模数据"}, "created": "2026-03-27"}}
+{"op": "create", "entity": {"id": "repsx_ptr", "type": "ReportFile", "properties": {"filename": "山西省电力交易规则分析报告_20260327.md", "path": "~/.openclaw/kb/reports/山西省电力交易规则分析报告_20260327.md", "size": "43KB", "lines": 835, "created": "2026-03-27", "province": "山西省", "subject": "电力交易规则", "reportType": "电力交易规则分析报告", "status": "partial", "待补全项": ["输配电价（5档）", "辅助服务具体补偿标准", "分时电价峰谷系数", "现货价格上下限具体数值", "中长期签约比例具体数值", "辅助服务市场运行规模数据"]}}}
+{"op": "relate", "from": "province_sx", "rel": "has_vpp_entity", "to": "ptrsx"}
+{"op": "relate", "from": "province_sx", "rel": "has_trading_report", "to": "repsx_ptr"}
+{"op": "relate", "from": "ptrsx", "rel": "report_located_at", "to": "repsx_ptr"}
+{"op":"create","entity":{"id":"province_tj","type":"Province","properties":{"name":"天津市"}}}
+{"op":"create","entity":{"id":"ptrtj","type":"ProvinceVPP","properties":{"province":"天津市","subject":"电力交易规则","classification":["差价合约机制"],"status":"partial","coreBenefit":["虚拟电厂专项规则（津发改能源〔2025〕204号）","独立储能专项规则（津发改能源〔2025〕203号）","分时电价时段与华北区域一致"],"policyDocuments":["津发改价管〔2024〕318号","津发改价管〔2024〕319号","津发改能源〔2025〕203号","津发改能源〔2025〕204号"],"notes":"⚠️ 部分参数待核实：燃煤基准价/输配电价/辅助服务具体补偿标准/现货价格限值"},"created":"2026-03-27"}}
+{"op":"create","entity":{"id":"reptj_ptr","type":"ReportFile","properties":{"filename":"天津市电力交易规则分析报告_20260327.md","path":"~/.openclaw/kb/reports/天津市电力交易规则分析报告_20260327.md","size":"41KB","lines":1035,"created":"2026-03-27","province":"天津市","subject":"电力交易规则","reportType":"电力交易规则分析报告","status":"partial","待补全项":["燃煤基准价","容量补偿电价","输配电价5档","现货价格上下限","中长期签约比例","偏差免考核范围","辅助服务具体补偿标准","辅助服务市场运行规模数据"]}}}
+{"op":"relate","from":"province_tj","rel":"has_vpp_entity","to":"ptrtj"}
+{"op":"relate","from":"province_tj","rel":"has_trading_report","to":"reptj_ptr"}
+{"op":"relate","from":"ptrtj","rel":"report_located_at","to":"reptj_ptr"}
+{"op":"create","entity":{"id":"province_heb","type":"Province","properties":{"name":"河北省"}}}
+{"op":"create","entity":{"id":"ptrheb","type":"ProvinceVPP","properties":{"province":"河北省","subject":"电力交易规则","classification":["差价合约机制","京津唐电网一体化"],"status":"partial","coreBenefit":["京津唐电网一体化，新能源消纳压力大","独立储能专项规则（冀发改能源〔2025〕178号）","虚拟电厂专项规则（冀发改能源〔2025〕179号）"],"policyDocuments":["冀发改能源〔2025〕178号","冀发改能源〔2025〕179号","冀发改价格〔2025〕245号"],"notes":"河北南网与京津唐电网并网，现货市场推进中；与北京、天津、华北能监局多重管辖"},"created":"2026-03-27"}}
+{"op":"create","entity":{"id":"repheb_ptr","type":"ReportFile","properties":{"filename":"河北省电力交易规则分析报告_20260327.md","path":"~/.openclaw/kb/reports/河北省电力交易规则分析报告_20260327.md","size":"56KB","lines":1001,"created":"2026-03-27","province":"河北省","subject":"电力交易规则","reportType":"电力交易规则分析报告","status":"partial","待补全项":["部分分时电价峰谷系数待核实"]}}}
+{"op":"relate","from":"province_heb","rel":"has_vpp_entity","to":"ptrheb"}
+{"op":"relate","from":"province_heb","rel":"has_trading_report","to":"repheb_ptr"}
+{"op":"relate","from":"ptrheb","rel":"report_located_at","to":"repheb_ptr"}
+{"op":"create","entity":{"id":"province_nmg","type":"Province","properties":{"name":"内蒙古自治区"}}}
+{"op":"create","entity":{"id":"ptrnmg","type":"ProvinceVPP","properties":{"province":"内蒙古自治区","subject":"电力交易规则","classification":["蒙西电网独立运行","蒙东电网并入东北电网"],"status":"partial","coreBenefit":["全国新能源装机第一大省","蒙西/蒙东两套规则体系"],"policyDocuments":["内蒙古能源局相关规则（具体文号待核实）"],"notes":"⚠️ 质量偏低：大量参数待核实（蒙西/蒙东两套规则体系，公开资料有限）；附录B大量留空"},"created":"2026-03-27"}}
+{"op":"create","entity":{"id":"repnmg_ptr","type":"ReportFile","properties":{"filename":"内蒙古电力交易规则分析报告_20260327.md","path":"~/.openclaw/kb/reports/内蒙古电力交易规则分析报告_20260327.md","size":"28KB","lines":833,"created":"2026-03-27","province":"内蒙古自治区","subject":"电力交易规则","reportType":"电力交易规则分析报告","status":"partial","qualityNote":"质量偏低：833行/11类B全但大量待核实，附录B多数留空"},"created":"2026-03-27"}}
+{"op":"relate","from":"province_nmg","rel":"has_vpp_entity","to":"ptrnmg"}
+{"op":"relate","from":"province_nmg","rel":"has_trading_report","to":"repnmg_ptr"}
+{"op":"relate","from":"ptrnmg","rel":"report_located_at","to":"repnmg_ptr"}
+{"op":"create","entity":{"id":"ptranh","type":"ProvinceVPP","properties":{"province":"安徽省","subject":"虚拟电厂","classification":["待核实（暂无VPP专项实施细则）"],"status":"partial","coreBenefit":["长三角省间互济","节点电价","多市场参与（现货+调频+需求响应）"],"policyDocuments":["皖能源电调〔2024〕55号（⚠️待核实）","安徽电力现货市场运营基本规则（结算试运行第5/6版）","皖能源电力〔2025〕53号"],"notes":"⚠️ 部分参数待核实；安徽暂未出台VPP专项细则，参照独立储能及国家指导意见"},"created":"2026-03-27"}}
+{"op":"create","entity":{"id":"repanh_vpp","type":"ReportFile","properties":{"filename":"安徽省虚拟电厂规则解析报告_20260327.md","path":"~/.openclaw/kb/reports/安徽省虚拟电厂规则解析报告_20260327.md","size":"27KB","lines":467,"created":"2026-03-27","province":"安徽省","subject":"虚拟电厂","reportType":"虚拟电厂规则解析报告","status":"partial","qualityNote":"27KB/467行/8章/8个政策依据；部分参数待核实（分类/中长期比例/容量补偿等）"},"created":"2026-03-27"}}
+{"op":"relate","from":"province_ah","rel":"has_vpp_entity","to":"ptranh"}
+{"op":"relate","from":"province_ah","rel":"has_vpp_report","to":"repanh_vpp"}
+{"op":"relate","from":"ptranh","rel":"report_located_at","to":"repanh_vpp"}
+{"id": "province_js_storage", "type": "ProvinceVPP", "province": "江苏省", "subject": "独立储能", "classification": "单一主体类型（无子类）", "准入门槛": "放电功率≥10MW/持续≥2h/AGC能力/商业运营", "参与市场": "中长期+现货+调频+辅助服务", "结算方式": "差量结算/节点电价", "签约要求": "无强制要求", "核心红利": "双重身份/无中长期签约/调频0.1-15元MW/容量电价清单制", "policy_files": "苏能源监管办2026版细则/苏发改能源函〔2025〕407号/发改价格〔2026〕114号/苏监能市场〔2025〕53号", "status": "confirmed", "report_located_at": "江苏省独立储能规则解析报告_20260331.md"}
+{"id": "report_js_storage_20260331", "type": "ReportFile", "province": "江苏省", "subject": "独立储能", "date": "2026-03-31", "version": "V1.0", "file": "江苏省独立储能规则解析报告_20260331.md", "size_bytes": "待统计", "tool": "new-power-subjects-rule V2.2.0标准7步工作流", "policy_count": 9}

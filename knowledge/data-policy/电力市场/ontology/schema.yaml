@@ -1,0 +1,106 @@
+# 新型主体领域知识图谱 - 实体类型定义
+
+types:
+  ProvinceVPP:
+    description: "某省某种新型主体的规则实体"
+    required:
+      - province
+      - subject
+      - status
+    properties:
+      province:
+        type: string
+        description: "省份名称"
+        example: "山东省"
+      subject:
+        type: string
+        description: "主体类型"
+        enum: ["虚拟电厂", "独立储能", "智能微电网", "电动汽车充电设施运营商"]
+      classification:
+        type: array
+        description: "该省该主体的分类方式（数组）"
+        items:
+          type: string
+      status:
+        type: string
+        description: "数据质量状态"
+        enum: ["confirmed", "partial", "unconfirmed"]
+        description_confirmed: "已核实，参数有政策依据"
+        description_partial: "部分核实，部分参数待核实"
+        description_unconfirmed: "建议值，待官方文件确认"
+      coreBenefit:
+        type: array
+        description: "核心红利标签列表"
+        items:
+          type: string
+      policyDocuments:
+        type: array
+        description: "主要政策文件文号列表"
+        items:
+          type: string
+      marketType:
+        type: array
+        description: "参与的市场品种"
+        items:
+          type: string
+      notes:
+        type: string
+        description: "补充说明（如北京须同时满足华北能监局+北京市双重要求）"
+
+  ReportFile:
+    description: "已入库的报告文件"
+    required:
+      - filename
+      - path
+      - size
+    properties:
+      filename:
+        type: string
+      path:
+        type: string
+        description: "相对于 memory/reports/ 的路径"
+      size:
+        type: string
+        description: "文件大小"
+      lines:
+        type: integer
+        description: "行数"
+      created:
+        type: string
+        description: "入库日期 YYYY-MM-DD"
+      province:
+        type: string
+        description: "关联省份"
+      subject:
+        type: string
+        description: "关联主体类型"
+
+relations:
+  has_vpp_entity:
+    description: "省份 --> VPP实体（该省该主体的完整规则图谱）"
+    from_types: [Province]
+    to_types: [ProvinceVPP]
+    cardinality: one_to_many
+
+  report_located_at:
+    description: "VPP实体 --> 报告文件（图谱指向详情）"
+    from_types: [ProvinceVPP]
+    to_types: [ReportFile]
+    cardinality: one_to_one
+
+  same_subject:
+    description: "同类主体跨省关系（用于横向对比）"
+    from_types: [ProvinceVPP]
+    to_types: [ProvinceVPP]
+    symmetric: true
+    cardinality: many_to_many
+
+  Province:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        unique: true
+        example: "山东省"
+    description: "省份节点（作为图谱入口）"

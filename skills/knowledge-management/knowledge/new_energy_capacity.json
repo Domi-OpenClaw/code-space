@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "source": "国家能源局2025年统计数据",
+    "update_date": "2025-12-31",
+    "total_solar_gw": 1200,
+    "total_wind_gw": 640,
+    "note": "⚠️ 数据用于预测模型基准线，非精确统计值"
+  },
+  "provinces": {
+    "新疆":      {"solar_gw": 80,  "wind_gw": 45, "coord": [43.79, 87.62], "note": "集中式光伏第一"},
+    "内蒙古":    {"solar_gw": 70,  "wind_gw": 80, "coord": [40.82, 111.65], "note": "风电第一大省"},
+    "江苏":      {"solar_gw": 65,  "wind_gw": 35, "coord": [32.06, 118.80], "note": "分布式光伏第一"},
+    "山东":      {"solar_gw": 60,  "wind_gw": 30, "coord": [36.67, 117.00], "note": "光伏和风电均居前列"},
+    "广东":      {"solar_gw": 45,  "wind_gw": 35, "coord": [23.13, 113.26], "note": "海上风电大省"},
+    "河北":      {"solar_gw": 50,  "wind_gw": 35, "coord": [38.04, 114.48], "note": "累计风光并网1.33亿千瓦"},
+    "山西":      {"solar_gw": 40,  "wind_gw": 30, "coord": [37.87, 112.55], "note": "煤炭转型新能源"},
+    "浙江":      {"solar_gw": 40,  "wind_gw": 25, "coord": [30.27, 120.15], "note": "2025年1月风光5596万千瓦超越煤电"},
+    "安徽":      {"solar_gw": 35,  "wind_gw": 10, "coord": [31.86, 117.28], "note": "分布式光伏超10GW"},
+    "河南":      {"solar_gw": 45,  "wind_gw": 10, "coord": [34.76, 113.63], "note": "户用光伏新增全国第一"},
+    "甘肃":      {"solar_gw": 35,  "wind_gw": 25, "coord": [36.06, 103.83], "note": "酒泉风电+光伏"},
+    "青海":      {"solar_gw": 30,  "wind_gw": 10, "coord": [36.62, 101.78], "note": "海南州光伏基地"},
+    "云南":      {"solar_gw": 25,  "wind_gw": 15, "coord": [25.04, 102.71], "note": "水电为主"},
+    "陕西":      {"solar_gw": 25,  "wind_gw": 15, "coord": [34.27, 108.95], "note": ""},
+    "宁夏":      {"solar_gw": 20,  "wind_gw": 10, "coord": [36.00, 106.27], "note": ""},
+    "湖北":      {"solar_gw": 30,  "wind_gw": 8,  "coord": [30.59, 114.31], "note": "已超额完成十四五目标"},
+    "广西":      {"solar_gw": 18,  "wind_gw": 5,  "coord": [22.82, 108.32], "note": ""},
+    "贵州":      {"solar_gw": 15,  "wind_gw": 8,  "coord": [26.60, 106.71], "note": ""},
+    "福建":      {"solar_gw": 12,  "wind_gw": 15, "coord": [26.08, 118.16], "note": "海上风电"},
+    "江西":      {"solar_gw": 18,  "wind_gw": 8,  "coord": [28.68, 115.89], "note": ""},
+    "湖南":      {"solar_gw": 15,  "wind_gw": 10, "coord": [28.23, 112.94], "note": ""},
+    "黑龙江":    {"solar_gw": 12,  "wind_gw": 15, "coord": [45.76, 126.63], "note": ""},
+    "辽宁":      {"solar_gw": 12,  "wind_gw": 18, "coord": [41.80, 123.43], "note": ""},
+    "吉林":      {"solar_gw": 10,  "wind_gw": 12, "coord": [43.88, 125.32], "note": ""},
+    "四川":      {"solar_gw": 8,   "wind_gw": 10, "coord": [30.66, 104.04], "note": "水电为主"},
+    "重庆":      {"solar_gw": 5,   "wind_gw": 3,  "coord": [29.56, 106.55], "note": ""},
+    "海南":      {"solar_gw": 8,   "wind_gw": 3,  "coord": [20.02, 110.35], "note": "分布式"},
+    "西藏":      {"solar_gw": 3,   "wind_gw": 1,  "coord": [29.65, 91.10], "note": ""},
+    "天津":      {"solar_gw": 5,   "wind_gw": 1,  "coord": [39.13, 117.20], "note": ""},
+    "北京":      {"solar_gw": 1,   "wind_gw": 0.5,"coord": [39.91, 116.39], "note": "体量小"},
+    "上海":      {"solar_gw": 2,   "wind_gw": 1,  "coord": [31.23, 121.47], "note": "体量小"}
+  }
+}

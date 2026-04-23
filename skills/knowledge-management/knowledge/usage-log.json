@@ -1,0 +1,37 @@
+{
+  "2026-04-23": {
+    "queries": [
+      {
+        "query": "知识体系",
+        "method": "keyword",
+        "result_count": 1,
+        "time": "2026-04-23T00:03:59.449350"
+      },
+      {
+        "query": "朗新",
+        "method": "keyword",
+        "result_count": 2,
+        "time": "2026-04-23T00:09:40.470548"
+      },
+      {
+        "query": "电力",
+        "method": "keyword",
+        "result_count": 3,
+        "time": "2026-04-23T00:21:35.795365"
+      },
+      {
+        "query": "电力市场",
+        "method": "keyword",
+        "result_count": 3,
+        "time": "2026-04-23T01:20:36.466982"
+      },
+      {
+        "query": "电力市场",
+        "method": "keyword",
+        "result_count": 5,
+        "time": "2026-04-23T01:25:31.783380"
+      }
+    ],
+    "total_results": 14
+  }
+}

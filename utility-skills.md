@@ -28,7 +28,7 @@
 | 名称 | 路径 | 废弃原因 |
 |------|------|---------|
 | energy-news-monitor | workspace/skills/ | 保留在 workspace（BCF层能源新闻采集） |
-| wechat-official-accounts-scan | workspace/skills/ | 已迁移至 PersonalFiles 个人技能体系 |
+| wechat-official-accounts-scan | workspace/skills/ | 公众号文章扫描（9个公众号） |
 | bid-intel-collection | workspace/skills/ | 保留在 workspace（BCF层招投标情报） |
 
 ## 更新记录

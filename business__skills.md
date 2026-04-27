@@ -36,7 +36,7 @@
 | power-market-intel | ~/.openclaw/skills/power-market-intel/ | 电力市场情报系统（5Agent协作） | **自建** | ✅六层完整 | 2026-04-11 |
 | power-predict-mcp | workspace/servers/power-predict-mcp/ | 20省电价预测MCP（天气+煤价+负荷，P10/P50/P90分位数） | **自建** | ✅初建 | 2026-04-17 |
 | energy-news-monitor | openclaw/skills/energy-news-monitor/ | 能源新闻采集（5网站→memory文件，01:30 cron） | **自建** | ✅六层完整 | 2026-04-11 |
-| wechat-official-accounts-scan | openclaw/skills/wechat-official-accounts-scan/ | 公众号RSS采集（9个公众号，00:30 cron） | **自建** | ✅六层完整 | 2026-04-11 |
+| wechat-official-accounts-scan | workspace/skills/wechat-official-accounts-scan/ | 公众号RSS采集（9个公众号，00:30 cron） | **自建** | ✅六层完整 | 2026-04-11 |
 | Power-Trading-Rule-Analysis | ~/.openclaw/skills/Power-Trading-Rule-Analysis/ | 10大规则模块+8个独立Tool，省级专项报告+跨省对比 | **自建** | ✅六层完整+L0 memory | 2026-04-23 |
 | new-power-subjects-rule | ~/.openclaw/skills/new-power-subjects-rule/ | 4类新型主体（独立储能/虚拟电厂/微电网/充电设施）规则解析 | **自建** | ✅六层完整+L0 memory | 2026-04-23 |
 

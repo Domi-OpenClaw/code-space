@@ -34,7 +34,7 @@ _（头条运营已迁移至 PersonalFiles 个人技能体系）_
 |------|------|------|------|------|---------|
 | power-market-intel | ~/.openclaw/skills/power-market-intel/ | 电力市场情报系统（5Agent协作） | **自建** | ✅六层完整 | 2026-04-11 |
 | power-predict-mcp | workspace/servers/power-predict-mcp/ | 20省电价预测MCP（天气+煤价+负荷，P10/P50/P90分位数） | **自建** | ✅初建 | 2026-04-17 |
-| energy-news-monitor | openclaw/skills/energy-news-monitor/ | 能源新闻采集（5网站→memory文件，01:30 cron） | **自建** | ✅六层完整 | 2026-04-11 |
+| energy-news-monitor | workspace/skills/energy-news-monitor/ | 能源新闻采集（5网站→memory文件，01:30 cron） | **自建** | ✅六层完整 | 2026-04-11 |
 | wechat-official-accounts-scan | workspace/skills/wechat-official-accounts-scan/ | 公众号RSS采集（9个公众号，00:30 cron） | **自建** | ✅六层完整 | 2026-04-11 |
 | Power-Trading-Rule-Analysis | ~/.openclaw/skills/Power-Trading-Rule-Analysis/ | 10大规则模块+8个独立Tool，省级专项报告+跨省对比 | **自建** | ✅六层完整+L0 memory | 2026-04-23 |
 | new-power-subjects-rule | ~/.openclaw/skills/new-power-subjects-rule/ | 4类新型主体（独立储能/虚拟电厂/微电网/充电设施）规则解析 | **自建** | ✅六层完整+L0 memory | 2026-04-23 |
@@ -43,25 +43,25 @@ _（头条运营已迁移至 PersonalFiles 个人技能体系）_
 
 | 名称 | 路径 | 功能 | 来源 | 纳管 | 上次检查 |
 |------|------|------|------|------|---------|
-| tencent-meeting-mcp | openclaw/skills/tencent-meeting-mcp/ | 腾讯会议MCP（查会/创会/参会人/录制/转写） | 外部下载 | BCF纳管 | 2026-04-11 |
+| tencent-meeting-mcp | ~/.openclaw/skills/tencent-meeting-mcp/ | 腾讯会议MCP（查会/创会/参会人/录制/转写） | 外部下载 | BCF纳管 | 2026-04-11 |
 
 ### 📋 售前全流程（1个）
 
 | 名称 | 路径 | 功能 | 来源 | 纳管 | 上次检查 |
 |------|------|------|------|------|---------|
-| pre-sales-workflow | openclaw/skills/pre-sales-workflow/ | 售前全流程（BD拜访/SA汇报/立项/标前准备，8个Tool） | **自建** | ✅4.15 | 2026-04-10 |
+| pre-sales-workflow | workspace/skills/pre-sales-workflow/ | 售前全流程（BD拜访/SA汇报/立项/标前准备，8个Tool） | **自建** | ✅4.15 | 2026-04-10 |
 
 ### 🔍 业务研究（1个）
 
 | 名称 | 路径 | 功能 | 来源 | 纳管 | 上次检查 |
 |------|------|------|------|------|---------|
-| business-research | openclaw/skills/business-research/ | 业务研究商业分析（六层架构，方法论+工具双定位） | **自建** | ✅六层完整 | 2026-04-23 |
+| business-research | workspace/skills/business-research/ | 业务研究商业分析（六层架构，方法论+工具双定位） | **自建** | ✅六层完整 | 2026-04-23 |
 
 ### 📢 招投标情报（1个）
 
 | 名称 | 路径 | 功能 | 来源 | 纳管 | 上次检查 |
 |------|------|------|------|------|---------|
-| bid-intel-collection | openclaw/skills/bid-intel-collection/ | 招投标情报采集（数据要素+新能源，每日2次） | **自建** | ✅初建 | 2026-04-16 |
+| bid-intel-collection | workspace/skills/bid-intel-collection/ | 招投标情报采集（数据要素+新能源，每日2次） | **自建** | ✅初建 | 2026-04-16 |
 
 ### 🗄️ 知识管理（2个）
 

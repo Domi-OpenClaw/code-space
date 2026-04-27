@@ -64,13 +64,12 @@
 |------|------|------|------|------|---------|
 | bid-intel-collection | openclaw/skills/bid-intel-collection/ | 招投标情报采集（数据要素+新能源，每日2次） | **自建** | ✅初建 | 2026-04-16 |
 
-### 🗄️ 知识管理（1个）
+### 🗄️ 知识管理（2个）
 
 | 名称 | 路径 | 功能 | 来源 | 纳管 | 上次检查 |
 |------|------|------|------|------|---------|
 | knowledge-management | workspace/skills/knowledge-management/ | 统一知识管理体系（订阅BCF数据源→清洗→归档→图谱同步） | **自建** | ✅六层完整 | 2026-04-14 |
-
-_（knowledge-graph 已迁移至 PersonalFiles 个人技能体系）_
+| knowledge-graph | workspace/skills/knowledge-graph/ | 知识图谱可视化（D3.js力导向图，GitHub Pages托管） | **自建** | ✅六层完整 | 2026-04-11 |
 
 ---
 

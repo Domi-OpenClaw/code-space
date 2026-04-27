@@ -85,8 +85,8 @@ _本文档定义 Domi 的核心工作原则，所有具体工作流详见 WORKFL
 **个人技能（PersonalFiles）：**
 - 独立于工作体系，不纳入 BCF/DCS 管理
 - 目录：`~/.openclaw/PersonalFiles/skills/`
-- 记忆：`PersonalFiles/MEMORY.md`
-- 涵盖：基金盯盘、头条运营、公众号扫描、知识图谱
+- 数据存储：直接放在各 skill 自有的 memory/ 目录下，不建独立知识库
+- 涵盖：基金盯盘（fund-monitor）、头条运营（toutiao-ops）、公众号扫描（wechat-official-accounts-scan）
 
 **客户拜访触发：** 「拜访客户」「BD」「拜访计划」→ 调用 `pre-sales-workflow` 的 `bd__customer_visit` 工具
 

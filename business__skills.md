@@ -26,18 +26,18 @@ _（头条运营已迁移至 PersonalFiles 个人技能体系）_
 
 | 名称 | 路径 | 功能 | 来源 | 纳管 | 上次检查 |
 |------|------|------|------|------|---------|
-| data-market-insight | workspace/skills/data-market-insight/ | 数据要素市场情报系统（六层完整v2.1) | **自建** | ✅4.13 | 2026-04-13 |
+| power-retail-analyzer | workspace/skills/power-retail-analyzer/ | 电力零售套餐分析器，帮助售电公司交易员快速获取某省零售套餐信息（六层完整） | **自建** | ✅4.13 | 2026-04-13 |
 
 ### ⚡ 电力市场（5个）
 
 | 名称 | 路径 | 功能 | 来源 | 纳管 | 上次检查 |
 |------|------|------|------|------|---------|
-| power-market-intel | ~/.openclaw/skills/power-market-intel/ | 电力市场情报系统（5Agent协作） | **自建** | ✅六层完整 | 2026-04-11 |
+| power-market-intel | workspace/skills/power-market-intel/ | 电力市场情报系统（5Agent协作） | **自建** | ✅六层完整 | 2026-04-11 |
 | power-predict-mcp | workspace/servers/power-predict-mcp/ | 20省电价预测MCP（天气+煤价+负荷，P10/P50/P90分位数） | **自建** | ✅初建 | 2026-04-17 |
 | energy-news-monitor | workspace/skills/energy-news-monitor/ | 能源新闻采集（5网站→memory文件，01:30 cron） | **自建** | ✅六层完整 | 2026-04-11 |
 | wechat-official-accounts-scan | workspace/skills/wechat-official-accounts-scan/ | 公众号RSS采集（9个公众号，00:30 cron） | **自建** | ✅六层完整 | 2026-04-11 |
-| Power-Trading-Rule-Analysis | ~/.openclaw/skills/Power-Trading-Rule-Analysis/ | 10大规则模块+8个独立Tool，省级专项报告+跨省对比 | **自建** | ✅六层完整+L0 memory | 2026-04-23 |
-| new-power-subjects-rule | ~/.openclaw/skills/new-power-subjects-rule/ | 4类新型主体（独立储能/虚拟电厂/微电网/充电设施）规则解析 | **自建** | ✅六层完整+L0 memory | 2026-04-23 |
+| Power-Trading-Rule-Analysis | workspace/skills/Power-Trading-Rule-Analysis/ | 10大规则模块+8个独立Tool，省级专项报告+跨省对比 | **自建** | ✅六层完整+L0 memory | 2026-04-23 |
+| new-power-subjects-rule | workspace/skills/new-power-subjects-rule/ | 4类新型主体（独立储能/虚拟电厂/微电网/充电设施）规则解析 | **自建** | ✅六层完整+L0 memory | 2026-04-23 |
 
 ### 📅 会议办公（1个）
 

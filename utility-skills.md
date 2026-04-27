@@ -33,4 +33,4 @@
 ## 更新记录
 
 - **2026-04-25**：新增 domi-system-tuner、openclaw-backup-email、send-email-skill
-- **2026-04-24**：新增 aliYun-QWen-asr、clawd-boss__internet-security-rules；移除 energy-news-monitor、bid-intel-collection（已迁移至 BCF 层）；toutiao-ops 移至 PersonalFiles
+- **2026-04-24**：新增 aliYun-QWen-asr、clawd-boss__internet-security-rules；移除 energy-news-monitor、bid-intel-collection（已迁移至 BCF 层）；toutiao-ops 移至 PPF

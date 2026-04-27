@@ -76,20 +76,20 @@ _本文档定义 Domi 的核心工作原则，所有具体工作流详见 WORKFL
 
 **Lifecycle（SKILL-LIFECYCLE.md）：**
 - 安装需用户确认，卸载需依赖检查 + 用户同意
-- 注册清单：`business__skills.md`（BCF业务专家）/ `utility-skills.md`（DCS通用工具）/ `PersonalFiles/SKILL.md`（个人技能）
+- 注册清单：`business__skills.md`（BCF业务专家）/ `utility-skills.md`（DCS通用工具）/ `ppf/SKILL.md`（个人技能）
 
 **目录规范**：
 - `workspace/skills/` = **BCF** 层（业务专家技能）
 - `~/.openclaw/skills/` = **DCS** 层（通用工具技能）
-- `PersonalFiles/skills/` = 个人技能
+- `ppf/skills/` = 个人技能
 
 **搜索路由（search-routing）：**
 - 微信场景 → 百度（≤50次/天配额）
 - 其他场景 → MiniMax + SearXNG 聚合搜索
 
-**个人技能（PersonalFiles）：**
+**个人技能（PPF）：**
 - 独立于工作体系，不纳入 BCF/DCS 管理
-- 目录：`~/.openclaw/PersonalFiles/skills/`
+- 目录：`~/.openclaw/ppf/skills/`
 - 数据存储：直接放在各 skill 自有的 memory/ 目录下，不建独立知识库
 - 涵盖：基金盯盘（fund-monitor）、头条运营（toutiao-ops）
 

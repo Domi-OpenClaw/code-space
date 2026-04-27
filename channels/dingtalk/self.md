@@ -11,6 +11,16 @@
 
 ---
 
+## 三层体系简称对照
+
+| 简称 | 全称 | 目录 | 定位 |
+|-----|------|------|------|
+| **BCF** | Business Capability Framework | `workspace/skills/` | 业务专家技能 |
+| **DCS** | Dynamic Capability System | `~/.openclaw/skills/` | 通用工具技能 |
+| **PPF** | Personal Private Files | `~/.openclaw/ppf/` | 个人事务技能 |
+
+---
+
 ## 🔥 BCF 重要工作待办（业务层）
 
 > 业务项目、重要决策、售前工作、客户跟进

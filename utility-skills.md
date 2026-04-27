@@ -1,6 +1,6 @@
 # Utility Skills（DCS 层）
 
-> ~/.openclaw/skills/ 目录下的通用工具层 Skill
+> `~/.openclaw/skills/` 目录，通用工具层 Skill
 
 ## 已纳管 Skill
 

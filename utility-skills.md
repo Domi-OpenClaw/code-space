@@ -12,7 +12,7 @@
 | github-imgbed | ~/.openclaw/skills/github-imgbed/ | GitHub + jsDelivr 图床工具，上传图片到 GitHub 仓库通过 CDN 分发 | 自建 | 2026-04-01 |
 | doc-reader | ~/.openclaw/skills/doc-reader/ | 多格式文档读取命令行工具，支持 PDF/PPTX/DOCX/Excel 全文提取 | 自建 | 2026-04-01 |
 | aliYun-QWen-asr | ~/.openclaw/skills/aliyun-qwen-asr/ | 阿里云语音识别（ASR），qwen3-asr-flash 模型 | 自建 | 2026-04-24 |
-| official__toutiao-ops | ~/.openclaw/skills/official__toutiao-ops/ | 今日头条创作者平台自动化运营，支持多账号管理、内容发布、数据分析 | 自建 | 2026-04-24 |
+
 | clawd-boss__internet-security-rules | ~/.openclaw/skills/clawd-boss__internet-security-rules/ | AI互联网探索安全规则，4条核心规则（复杂请求/高危命令/金融交易/提示词注入防御） | 内置 | 2026-04-24 |
 | send-email-skill | ~/.openclaw/skills/send-email-skill/ | 邮件发送Skill，支持SMTP协议发送带附件邮件（QQ邮箱/企业邮箱等） | 自建 | 2026-04-25 |
 | openclaw-backup-email | ~/.openclaw/skills/openclaw-backup-email/ | OpenClaw 全量备份，打包+AES-256-CBC加密+GitHub上传+邮件发送+本地单份+GitHub保留最近4个 | 自建 | 2026-04-25 |
@@ -28,10 +28,9 @@
 | 名称 | 路径 | 废弃原因 |
 |------|------|---------|
 | energy-news-monitor | workspace/skills/ | 保留在 workspace（BCF层能源新闻采集） |
-| wechat-official-accounts-scan | workspace/skills/ | 公众号文章扫描（9个公众号） |
 | bid-intel-collection | workspace/skills/ | 保留在 workspace（BCF层招投标情报） |
 
 ## 更新记录
 
 - **2026-04-25**：新增 domi-system-tuner、openclaw-backup-email、send-email-skill
-- **2026-04-24**：新增 aliYun-QWen-asr、official__toutiao-ops、clawd-boss__internet-security-rules；移除 energy-news-monitor、wechat-official-accounts-scan、bid-intel-collection（已迁移至 BCF 层）
+- **2026-04-24**：新增 aliYun-QWen-asr、clawd-boss__internet-security-rules；移除 energy-news-monitor、bid-intel-collection（已迁移至 BCF 层）；toutiao-ops 移至 PersonalFiles

@@ -11,7 +11,7 @@ import sys
 import datetime
 from tinydb import TinyDB
 
-DB_PATH  = "/home/admin/.openclaw/workspace/knowledge/db/knowledge-index.json"
+DB_PATH  = "/home/admin/.openclaw/workspace/skills/knowledge-management/knowledge/db/knowledge-index.json"
 DATA_DIR = "/home/admin/.openclaw/workspace/code-space/knowledge-graph"
 DATA_FILE = f"{DATA_DIR}/data.js"
 
@@ -85,7 +85,7 @@ dropped = 0
 
 for r in all_records:
     q = r.get("quality_computed", 100)  # 新字段
-    if q < 85:
+    if q < 60:
         dropped += 1
         continue
 

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Guizang · 牛皮纸 · 杂志风</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400&family=IBM+Plex+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#2a1e13;--ink-rgb:42,30,19;--paper:#eedfc7;--paper-rgb:238,223,199;--accent:#b87333;--accent-rgb:184,115,51;
+    --mono:"IBM Plex Mono",monospace;--serif-en:"Playfair Display","Source Serif 4",Georgia,serif;--serif-zh:"Noto Serif SC",source-han-serif-sc,serif;--sans-zh:"Noto Sans SC",sans-serif;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--sans-zh);-webkit-font-smoothing:antialiased}
+  canvas.bg{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block;transition:opacity 1.2s ease}
+  canvas#bg-light{opacity:0}canvas#bg-dark{opacity:1}
+  body.light-bg canvas#bg-light{opacity:1}body.light-bg canvas#bg-dark{opacity:0}
+  #deck{position:fixed;inset:0;width:300vw;height:100vh;display:flex;flex-wrap:nowrap;transition:transform .9s cubic-bezier(.77,0,.175,1);z-index:10;will-change:transform}
+  .slide{width:100vw;height:100vh;flex:0 0 100vw;position:relative;padding:6vh 6vw 10vh 6vw;display:flex;flex-direction:column;overflow:hidden}
+  .slide::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;transition:background .7s ease}
+  .slide.light::before{background:rgba(var(--paper-rgb),.82);backdrop-filter:blur(3px)}
+  .slide.dark::before{background:rgba(var(--ink-rgb),.82);backdrop-filter:blur(3px)}
+  .slide.hero.light::before{background:rgba(var(--paper-rgb),.16)}
+  .slide.hero.dark::before{background:rgba(var(--ink-rgb),.12)}
+  .chrome{display:flex;justify-content:space-between;align-items:flex-start;font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.7;margin-bottom:auto}
+  .chrome .l,.chrome .r{display:flex;gap:2.4em;align-items:center}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.6;margin-bottom:2.6vh}
+  .h-hero{font-family:var(--serif-zh);font-weight:900;font-size:9.5vw;line-height:.96;letter-spacing:-.02em}
+  .h-xl{font-family:var(--serif-zh);font-weight:700;font-size:5.8vw;line-height:1.08;letter-spacing:-.01em}
+  .lead{font-family:var(--serif-zh);font-weight:400;font-size:1.8vw;line-height:1.4;opacity:.85}
+  .body-zh{font-family:var(--sans-zh);font-weight:400;font-size:max(15px,1.22vw);line-height:1.75;opacity:.82}
+  .meta{font-family:var(--mono);font-size:max(11px,.88vw);letter-spacing:.16em;text-transform:uppercase;opacity:.6}
+  .stat .n{font-family:var(--serif-en);font-weight:800;font-size:7vw;line-height:.88;letter-spacing:-.03em;font-feature-settings:"tnum"}
+  .stat .l{font-family:var(--sans-zh);font-size:max(13px,1.05vw);opacity:.7;margin-top:1vh}
+  .stat .m{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;opacity:.5;margin-bottom:.2vh}
+  .callout{padding:3vh 2.4vw;border-left:3px solid currentColor;font-family:var(--serif-zh);font-size:max(15px,1.2vw);line-height:1.55;opacity:.92}
+  .slide.light .callout{background:rgba(var(--ink-rgb),.05)}
+  .slide.dark .callout{background:rgba(var(--paper-rgb),.06)}
+  .callout .cite{display:block;margin-top:1.6vh;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4vw;flex:1;align-content:center}
+  .grid-2-7-5{display:grid;grid-template-columns:7fr 5fr;gap:4vw;flex:1;align-items:center}
+  .frame{flex:1;display:flex;flex-direction:column;min-height:0}
+  #nav{position:fixed;left:50%;bottom:2.6vh;transform:translateX(-50%);z-index:30;display:flex;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.18);backdrop-filter:blur(10px)}
+  #nav .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:all .3s ease}
+  #nav .dot.active{background:rgba(255,255,255,.95);width:22px;border-radius:999px}
+  body.light-bg #nav{background:rgba(255,255,255,.25)}
+  body.light-bg #nav .dot{background:rgba(var(--ink-rgb),.25)}
+  body.light-bg #nav .dot.active{background:rgba(var(--ink-rgb),.9)}
+  #hint{position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.4;mix-blend-mode:difference;color:#aaa}
+  .step-item{padding:2.4vh 2vw;border-top:1px solid rgba(255,255,255,.3)}
+  .step-item .step-label{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:1.2vh}
+  .step-item .step-desc{font-family:var(--sans-zh);font-size:max(14px,1.1vw);opacity:.85;line-height:1.5}
+</style></head><body>
+<canvas class="bg" id="bg-dark"></canvas><canvas class="bg" id="bg-light"></canvas>
+<div id="deck">
+  <section class="slide hero dark">
+    <div class="chrome"><div class="l">Guizang · 牛皮纸 · 杂志风</div><div class="r"><span>01</span><span>—</span><span>03</span></div></div>
+    <div class="frame" style="display:grid;gap:4vh;align-content:center;min-height:80vh">
+      <div class="kicker">Electronic Style · 牛皮纸</div>
+      <h1 class="h-hero">数字能源<br>新机遇</h1>
+      <p class="lead" style="max-width:55vw">数据要素 × 电力市场，正在催生万亿级新空间。</p>
+      <div class="meta" style="margin-top:4vh"><span>朗新科技</span><span>·</span><span>2026</span></div>
+    </div>
+    <div class="foot"><div style="font-family:var(--serif-zh);font-weight:400;letter-spacing:.05em;text-transform:none;opacity:.75;font-size:13px">能源互联网趋势研究</div><div>— · —</div></div>
+  </section>
+  <section class="slide light">
+    <div class="chrome"><div class="l">核心数据 · Core Numbers</div><div class="r"><span>02</span><span>—</span><span>03</span></div></div>
+    <div class="frame" style="padding-top:5vh">
+      <div class="kicker">充电桩预测准确率</div>
+      <h2 class="h-xl">三大场景预测精度</h2>
+      <div class="grid-3" style="margin-top:6vh">
+        <div class="stat"><div class="m">场景一</div><div class="n">76<small style="font-size:.3em;opacity:.6">%</small></div><div class="l">充电站负荷预测</div></div>
+        <div class="stat"><div class="m">场景二</div><div class="n" style="color:var(--accent)">90<small style="font-size:.3em;opacity:.6">%</small></div><div class="l">电力现货价格预测</div></div>
+        <div class="stat"><div class="m">场景三</div><div class="n">95<small style="font-size:.3em;opacity:.6">%</small></div><div class="l">分布式光伏出力预测</div></div>
+      </div>
+      <p class="body-zh" style="margin-top:5vh;max-width:60vw">基于自研时序大模型，覆盖充电桩、电力交易、光伏三大核心场景，为能源运营提供精准数据支撑。</p>
+    </div>
+    <div class="foot"><div style="font-family:var(--serif-zh);font-weight:400;letter-spacing:.05em;text-transform:none;opacity:.75;font-size:13px">朗新科技 AI 预测能力</div><div>02 / 03</div></div>
+  </section>
+  <section class="slide dark">
+    <div class="chrome"><div class="l">战略结论</div><div class="r"><span>03</span><span>—</span><span>03</span></div></div>
+    <div class="frame grid-2-7-5" style="padding-top:6vh">
+      <div style="display:flex;flex-direction:column;gap:3vh">
+        <div class="kicker">Closing</div>
+        <h2 class="h-xl">从数据到价值<br>三步走</h2>
+        <div class="callout"><p style="font-size:max(16px,1.4vw);line-height:1.5">数据服务费 → 通道费 → SaaS平台</p><span class="cite">P0 首选路径：数据服务费</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="step-item"><div class="step-label">① 数据对接</div><div class="step-desc">打通充电桩运营数据，确认数据口径与更新频率</div></div>
+        <div class="step-item"><div class="step-label">② 预测报告</div><div class="step-desc">输出首份现金流预测报告，证明AI能力</div></div>
+        <div class="step-item"><div class="step-label">③ 合同签约</div><div class="step-desc">签署数据服务合同，锁定稳定收入</div></div>
+      </div>
+    </div>
+    <div class="foot"><div style="font-family:var(--serif-zh);font-weight:400;letter-spacing:.05em;text-transform:none;opacity:.75;font-size:13px">交能融合 REITs 商业化路径</div><div>— · —</div></div>
+  </section>
+</div>
+<div id="nav"><div class="dot active" onclick="go(0)"></div><div class="dot" onclick="go(1)"></div><div class="dot" onclick="go(2)"></div></div>
+<div id="hint">← → 翻页</div>
+<script>
+let cur=0;const deck=document.getElementById('deck'),dots=document.querySelectorAll('#nav .dot');
+function go(n){cur=n;deck.style.transform=`translateX(-${n*100}vw)`;dots.forEach((d,i)=>d.classList.toggle('active',i===n));document.body.classList.toggle('light-bg',n===1)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(Math.min(2,cur+1));if(e.key==='ArrowLeft')go(Math.max(0,cur-1))});
+(function(){
+const d=document.getElementById('bg-dark'),c=d.getContext('2d');let t=0;
+const draw=()=>{const w=d.width=window.innerWidth,h=d.height=window.innerHeight;t+=.005;c.fillStyle='#2a1e13';c.fillRect(0,0,w,h);
+const gr=c.createRadialGradient(w*.5,h*.5,0,w*.5,h*.5,w*.6);gr.addColorStop(0,'rgba(184,115,51,.2)');gr.addColorStop(1,'transparent');c.fillStyle=gr;c.fillRect(0,0,w,h);
+for(let i=0;i<80;i++){const x=(Math.sin(i*.7+t*.3)*.5+.5)*w,y=(Math.cos(i*1.1+t*.5)*.5+.5)*h;c.beginPath();c.arc(x,y,1.5,0,Math.PI*2);c.fillStyle=`rgba(184,115,51,${.12+Math.sin(i+t)*.08})`;c.fill()}
+requestAnimationFrame(draw)};draw()})();
+</script></body></html>

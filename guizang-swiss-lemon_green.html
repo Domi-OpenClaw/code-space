@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Guizang · 柠檬绿 · 瑞士风</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Noto+Sans+SC:wght@200;300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#fafaf8;--paper-rgb:250,250,248;--ink:#0a0a0a;--ink-rgb:10,10,10;--grey-1:#f0f0ee;--grey-2:#d4d4d2;--grey-3:#737373;
+    --accent:#C5E803;--accent-rgb:197,232,3;--accent-on:#0a0a0a;
+    --sans:"Inter","Helvetica Neue","Helvetica","Arial",system-ui,sans-serif;
+    --sans-zh:"PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
+    --mono:"JetBrains Mono","IBM Plex Mono",monospace;--ease:cubic-bezier(.2,0,.38,.9);}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:var(--sans),var(--sans-zh);-webkit-font-smoothing:antialiased}
+  canvas.bg{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block;opacity:.55;mix-blend-mode:multiply;pointer-events:none}
+  #deck{position:fixed;inset:0;width:300vw;height:100vh;display:flex;flex-wrap:nowrap;transition:transform .9s var(--ease);z-index:10;will-change:transform}
+  .slide{width:100vw;height:100vh;flex:0 0 100vw;position:relative;padding:5.5vh 5vw 7vh 5vw;display:flex;flex-direction:column;overflow:hidden;background:var(--paper)}
+  .slide.accent{background:var(--accent);color:var(--accent-on)}
+  .slide.dark{background:var(--ink);color:var(--paper)}
+  .chrome{display:flex;justify-content:space-between;align-items:flex-start;font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;opacity:.7;margin-bottom:auto}
+  .chrome .l,.chrome .r{display:flex;gap:1.6em;align-items:center}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:14px;letter-spacing:.14em;text-transform:uppercase;opacity:.55;padding-top:2vh;border-top:1px solid rgba(0,0,0,.12)}
+  .kicker{font-family:var(--mono);font-size:14px;letter-spacing:.24em;text-transform:uppercase;opacity:.65;margin-bottom:2.4vh;display:inline-flex;align-items:center;gap:.8em}
+  .kicker::before{content:"";width:24px;height:1px;background:currentColor;opacity:.6}
+  .h-hero{font-family:var(--sans),var(--sans-zh);font-weight:200;font-size:10vw;line-height:.92;letter-spacing:-.04em}
+  .h-xl{font-family:var(--sans),var(--sans-zh);font-weight:200;font-size:5.6vw;line-height:1;letter-spacing:-.03em}
+  .lead{font-family:var(--sans),var(--sans-zh);font-weight:400;font-size:1.5vw;line-height:1.4;opacity:.8}
+  .body{font-family:var(--sans),var(--sans-zh);font-weight:400;font-size:max(17px,1.05vw);line-height:1.6;opacity:.78}
+  .meta{font-family:var(--mono);font-size:max(14px,.82vw);letter-spacing:.18em;text-transform:uppercase;opacity:.6}
+  .stat-card{display:flex;flex-direction:column;gap:.6vh;align-items:flex-start;padding-top:1.6vh;border-top:2px solid currentColor}
+  .stat-label{font-family:var(--mono);font-size:max(13px,.78vw);letter-spacing:.22em;text-transform:uppercase;opacity:.55}
+  .stat-nb{font-family:var(--sans);font-weight:800;font-size:5.2vw;line-height:.88;letter-spacing:-.03em;font-feature-settings:"tnum";margin-top:.4vh}
+  .stat-note{font-family:var(--sans),var(--sans-zh);font-size:max(16px,.96vw);opacity:.68;margin-top:.6vh}
+  .accent-block{background:var(--accent);color:var(--accent-on);padding:3.2vh 2.8vw}
+  .mark{background:var(--accent);color:var(--accent-on);padding:0 .18em}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:2vw 3vw;flex:1;align-content:center}
+  .grid-2-7-5{display:grid;grid-template-columns:7fr 5fr;gap:3vw 4vh;align-items:center}
+  .frame{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  .rule{width:100%;height:1px;background:currentColor;opacity:.18;margin:2.4vh 0}
+  .step{display:flex;flex-direction:column;gap:.6vh;padding-top:1.2vh;border-top:2px solid currentColor}
+  .step-nb{font-family:var(--mono);font-size:max(13px,.9vw);opacity:.5}
+  .step-title{font-family:var(--sans),var(--sans-zh);font-weight:700;font-size:max(18px,1.3vw);letter-spacing:-.01em}
+  .step-desc{font-family:var(--sans),var(--sans-zh);font-size:max(15px,.92vw);opacity:.65;line-height:1.45}
+  #nav{position:fixed;left:50%;bottom:2.6vh;transform:translateX(-50%);z-index:30;display:flex;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.12);backdrop-filter:blur(10px)}
+  #nav .dot{width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,.25);cursor:pointer;transition:all .3s ease;border:0}
+  #nav .dot.active{background:var(--accent);width:22px;border-radius:999px}
+  #hint{position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.4;pointer-events:none}
+</style></head><body>
+<canvas class="bg" id="bg"></canvas>
+<div id="deck">
+  <section class="slide accent">
+    <div class="chrome" style="color:rgba(255,255,255,.7)"><div class="l">Guizang · 柠檬绿 · 瑞士风</div><div class="r"><span>01</span><span>—</span><span>03</span></div></div>
+    <div class="frame" style="display:grid;gap:3vh;align-content:center;min-height:72vh">
+      <div class="kicker" style="color:rgba(255,255,255,.65)">Swiss Style · 柠檬绿</div>
+      <h1 class="h-hero" style="color:#fff;align-self:center">数据驱动<br>能源变革</h1>
+      <p class="lead" style="max-width:50vw;color:rgba(255,255,255,.85)">电力市场改革深化，数据要素正在成为新能源运营的核心竞争力。</p>
+      <div class="rule" style="background:rgba(255,255,255,.25);margin-top:2vh"></div>
+      <div style="display:flex;gap:2em;flex-wrap:wrap"><span style="font-family:var(--mono);font-size:max(13px,.8vw);letter-spacing:.18em;text-transform:uppercase;opacity:.65;color:#fff">朗新科技</span><span style="font-family:var(--mono);font-size:max(13px,.8vw);letter-spacing:.18em;text-transform:uppercase;opacity:.65;color:#fff">2026</span></div>
+    </div>
+    <div class="foot" style="color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.2)"><span style="font-size:max(15px,.95vw)">能源互联网 · 趋势研究</span><span>— · —</span></div>
+  </section>
+  <section class="slide">
+    <div class="chrome"><div class="l">核心数据 · Core Numbers</div><div class="r"><span>02</span><span>—</span><span>03</span></div></div>
+    <div class="frame" style="padding-top:5vh">
+      <div class="kicker no-line">充电桩预测准确率</div>
+      <h2 class="h-xl" style="margin-bottom:4vh">三大场景预测精度</h2>
+      <div class="grid-3">
+        <div class="stat-card"><div class="stat-label">场景一</div><div class="stat-nb">76<small style="font-size:.3em;opacity:.5;font-weight:500">%</small></div><div class="stat-note">充电站负荷预测</div></div>
+        <div class="stat-card"><div class="stat-label">场景二</div><div class="stat-nb" style="color:var(--accent)">90<small style="font-size:.3em;opacity:.5;font-weight:500">%</small></div><div class="stat-note">电力现货价格预测</div></div>
+        <div class="stat-card"><div class="stat-label">场景三</div><div class="stat-nb">95<small style="font-size:.3em;opacity:.5;font-weight:500">%</small></div><div class="stat-note">分布式光伏出力预测</div></div>
+      </div>
+      <div class="rule"></div>
+      <p class="body" style="max-width:58vw">基于自研时序大模型，覆盖充电桩、电力交易、光伏三大核心场景，为能源运营提供精准数据支撑，实现<span class="mark">数据服务费</span>的稳定变现路径。</p>
+    </div>
+    <div class="foot"><span style="font-size:max(14px,.9vw);opacity:.85">朗新科技 AI 预测能力</span><span>02 / 03</span></div>
+  </section>
+  <section class="slide dark">
+    <div class="chrome" style="color:rgba(255,255,255,.7)"><div class="l">战略结论</div><div class="r"><span>03</span><span>—</span><span>03</span></div></div>
+    <div class="frame grid-2-7-5" style="padding-top:5vh">
+      <div style="display:flex;flex-direction:column;gap:2.4vh">
+        <div class="kicker" style="color:rgba(255,255,255,.65)">Closing</div>
+        <h2 class="h-xl" style="color:#fff">从数据到价值<br>三步走</h2>
+        <div class="accent-block" style="margin-top:2vh"><div style="font-size:max(16px,1.1vw);font-weight:400">数据服务费 → 通道费 → SaaS平台</div><div style="font-family:var(--mono);font-size:max(12px,.75vw);letter-spacing:.18em;text-transform:uppercase;opacity:.75;margin-top:1.2vh">P0 首选路径：数据服务费</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="step"><div class="step-nb">01</div><div class="step-title" style="color:#fff">数据对接</div><div class="step-desc" style="color:rgba(255,255,255,.65)">打通充电桩运营数据，确认数据口径与更新频率</div></div>
+        <div class="step"><div class="step-nb">02</div><div class="step-title" style="color:#fff">预测报告</div><div class="step-desc" style="color:rgba(255,255,255,.65)">输出首份现金流预测报告，证明AI能力</div></div>
+        <div class="step"><div class="step-nb">03</div><div class="step-title" style="color:#fff">合同签约</div><div class="step-desc" style="color:rgba(255,255,255,.65)">签署数据服务合同，锁定稳定收入</div></div>
+      </div>
+    </div>
+    <div class="foot" style="color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.15)"><span style="font-size:max(14px,.88vw);opacity:.75">交能融合 REITs 商业化路径</span><span>— · —</span></div>
+  </section>
+</div>
+<div id="nav"><div class="dot active" onclick="go(0)"></div><div class="dot" onclick="go(1)"></div><div class="dot" onclick="go(2)"></div></div>
+<div id="hint">← → 翻页</div>
+<script>
+let cur=0;const deck=document.getElementById('deck'),dots=document.querySelectorAll('#nav .dot');
+function go(n){cur=n;deck.style.transform=`translateX(-${n*100}vw)`;dots.forEach((d,i)=>d.classList.toggle('active',i===n));document.body.style.background=n===2?'var(--ink)':n===0?'var(--accent)':'var(--paper)'}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(Math.min(2,cur+1));if(e.key==='ArrowLeft')go(Math.max(0,cur-1))});
+(function(){const c=document.getElementById('bg'),ctx=c.getContext('2d');let t=0;
+const draw=()=>{const w=c.width=window.innerWidth,h=c.height=window.innerHeight;t+=.3;ctx.clearRect(0,0,w,h);ctx.strokeStyle='rgba(197,232,3,.12)';ctx.lineWidth=1;const g=48;for(let x=0;x<w;x+=g){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<h;y+=g){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.fillStyle='rgba(197,232,3,.06)';for(let i=0;i<12;i++){const x=(Math.sin(i*.8+t*.008)*.5+.5)*(w-60)+30,y=(Math.cos(i*1.3+t*.006)*.5+.5)*(h-60)+30,r=4+i%4*2;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill()}};
+(function loop(){requestAnimationFrame(()=>{draw();loop()})})()})();
+</script></body></html>
